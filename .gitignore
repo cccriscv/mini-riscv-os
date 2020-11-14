@@ -1,0 +1,9 @@
+*~
+*.o
+*.elf
+*.bin
+*.list
+*.swp
+*.bak
+bak
+
