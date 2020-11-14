@@ -1,6 +1,5 @@
 #include <stdint.h>
 
-// ref: https://www.activexperts.com/serial-port-component/tutorials/uart/
 #define UART        0x10000000
 #define UART_THR    (uint8_t*)(UART+0x00) // THR:transmitter holding register
 #define UART_LSR    (uint8_t*)(UART+0x05) // LSR:line status register
@@ -18,5 +17,6 @@ void lib_puts(char *s) {
 int os_main(void)
 {
 	lib_puts("Hello OS!\n");
+	while (1) {}
 	return 0;
 }
