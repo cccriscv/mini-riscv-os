@@ -22,15 +22,15 @@ And you should start your git-bash to build the project. (It works for me in vsc
 
 ## Steps
 
-* `01-HelloOs`
+* [01-HelloOs](01-HelloOs)
   - Enable UART to print trivial greetings
-* `02-ContextSwitch`
+* [02-ContextSwitch](02-ContextSwitch)
   - Basic switch from OS to user task
-* `03-Multitasking`
+* [03-MultiTasking](03-MultiTasking)
   - Two user tasks are interatively switching
-* `04-TimerInterrupt`
+* [04-TimerInterrupt](04-TimerInterrupt)
   - Enable SysTick for future scheduler implementation
-* `05-Preemptive`
+* [05-Preemptive](05-Preemptive)
   - Basic preemptive scheduling
 
 ## Building and Verification
