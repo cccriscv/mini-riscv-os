@@ -1,4 +1,4 @@
-# 04-TimerInterrupt
+# 04-TimerInterrupt -- RISC-V 的時間中斷
 
 [os.c]:https://github.com/ccc-c/mini-riscv-os/blob/master/04-TimerInterrupt/os.c
 
@@ -8,9 +8,9 @@
 
 專案 -- https://github.com/ccc-c/mini-riscv-os/tree/master/04-TimerInterrupt
 
-在前一章的 [03-MultiTasking](03-MultiTasking.md) 中我們實作了一個《協同式多工》作業系統。但是由於沒有引入時間中斷機制，無法成為一個《搶先式》(Preemptive) 多工系統。
+在前一章的 [03-MultiTasking](03-MultiTasking.md) 中我們實作了一個《協同式多工》作業系統。不過由於沒有引入時間中斷機制，無法成為一個《搶先式》(Preemptive) 多工系統。
 
-本章將為第五章的《搶先式多工系統》鋪路，介紹如何在 RISC-V 處理器中使用《時間中斷機制》。有了時間中斷之後，我們就可以定時強制取回控制權，而不用害怕惡霸行程佔據系統而不歸還控制權給作業系統了。
+本章將為第五章的《搶先式多工系統》鋪路，介紹如何在 RISC-V 處理器中使用《時間中斷機制》。有了時間中斷之後，我們就可以定時強制取回控制權，而不用害怕惡霸行程佔據系統，不歸還控制權給作業系統了。
 
 ## 系統執行
 

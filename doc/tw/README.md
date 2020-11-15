@@ -1,6 +1,4 @@
-# mini-riscv-os
-
-一步一步自製嵌入式作業系統
+# mini-riscv-os -- 一步一步自製 RISC-V 處理器上的嵌入式作業系統
 
 ## 簡介
 

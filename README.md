@@ -6,9 +6,10 @@ Mini-riscv-os was inspired by [jserv](https://github.com/jserv)'s [mini-arm-os](
 
 However, [ccckmit](https://github.com/ccckmit) rewrite the project for RISC-V, and run on Win10 instead of Linux.
 
-## Prerequisites
+## Build & Run on Windows 10
 
-* Win10 : [git-bash](https://git-scm.com/download/win) + [FreedomStudio](https://www.sifive.com/software)
+* [git-bash](https://git-scm.com/download/win)
+* [FreedomStudio](https://www.sifive.com/software)
 
 After download and extract the FreedomStudio for windows. You have to set the system PATH to the folder of `riscv64-unknown-elf-gcc/bin` and `riscv-qemu/bin`. For example, I set PATH to the following folders. 
 
