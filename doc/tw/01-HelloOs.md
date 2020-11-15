@@ -109,7 +109,34 @@ clean:
 	rm -f *.elf
 ```
 
-你可以看到我們使用 riscv64-unknown-elf-gcc 去編譯，然後用 qemu-system-riscv32 去執行， 01-HelloOs的執行過程如下：
+Makefile 的有些語法不容易懂，特別是下列的符號：
+
+```
+$@ : 該規則的目標文件 (Target file)
+$* : 代表 targets 所指定的檔案，但不包含副檔名
+$< : 依賴文件列表中的第一個依賴文件 (Dependencies file)
+$^ : 依賴文件列表中的所有依賴文件
+$? : 依賴文件列表中新於目標文件的文件列表
+$* : 代表 targets 所指定的檔案，但不包含副檔名
+
+?= 語法 : 若變數未定義，則替它指定新的值。
+:= 語法 : make 會將整個 Makefile 展開後，再決定變數的值。
+```
+
+所以上述 Makefile 中的下列兩行：
+
+```Makefile
+os.elf: start.s os.c
+	$(CC) $(CFLAGS) -T os.ld -o os.elf $^
+```
+
+其中的 `$^` 被代換成 `start.s os.c` ，於是整個 `$(CC) $(CFLAGS) -T os.ld -o os.elf $^` 整行展開後就變成了下列指令。
+
+```
+riscv64-unknown-elf-gcc -nostdlib -fno-builtin -mcmodel=medany -march=rv32ima -mabi=ilp32 -T os.ld -o os.elf start.s os.c
+```
+
+在 Makefile 中我們使用 riscv64-unknown-elf-gcc 去編譯，然後用 qemu-system-riscv32 去執行， 01-HelloOs 的執行過程如下：
 
 ```
 user@DESKTOP-96FRN6B MINGW64 /d/ccc109/sp/11-os/mini-riscv-os/01-HelloOs (master)

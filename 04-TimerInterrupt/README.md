@@ -2,7 +2,7 @@
 
 ## Build & Run
 
-```
+```sh
 user@DESKTOP-96FRN6B MINGW64 /d/ccc109/sp/11-os/mini-riscv-os/04-TimerInterrupt (master)   
 $ make clean
 rm -f *.elf
