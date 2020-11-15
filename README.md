@@ -1,3 +1,5 @@
+[中文版說明文件](doc/tw)
+
 # mini-riscv-os 
 
 Build a minimal multi-tasking OS kernel for RISC-V from scratch
