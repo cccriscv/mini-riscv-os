@@ -123,11 +123,11 @@ sys_switch:
 .globl sys_kernel
 .align 4
 sys_kernel:
-        addi sp, sp, -128
-        reg_save sp
-        call timer_handler # context switch ...
-        reg_load sp
-        addi sp, sp, 128
+        addi sp, sp, -128  # alloc stack space
+        reg_save sp        # save all registers
+        call timer_handler # call timer.c:timer_handler 
+        reg_load sp        # restore all registers
+        addi sp, sp, 128   # restore stack pointer
         jr a7              # jump to a7=mepc , return to timer break point
 
 .globl sys_timer
