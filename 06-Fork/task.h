@@ -4,7 +4,7 @@
 #include "riscv.h"
 #include "sys.h"
 
-#define MAX_TASK 5
+#define MAX_TASK 10
 #define STACK_SIZE 1024
 
 extern int taskTop;
