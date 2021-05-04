@@ -19,6 +19,11 @@ int get_current_task()
 	return current_task;
 }
 
+void minus_current_task()
+{
+	current_task--;
+}
+
 int os_main(void)
 {
 	os_start();

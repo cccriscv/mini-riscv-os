@@ -1,6 +1,6 @@
 #include "task.h"
 #include "lib.h"
-
+#include "os.h"
 uint8_t task_stack[MAX_TASK][STACK_SIZE];
 struct context ctx_os;
 struct task_node
@@ -18,30 +18,42 @@ int taskTop = 0; // total number of task
 // create a new task
 int task_create(void (*task)(void))
 {
-	if (MAX_TASK + 1 == taskTop)
+	if (MAX_TASK == taskTop)
 		return -1;
-	int i = taskTop++;
-	ctx_tasks[i].ctx.ra = (reg_t)task;
-	ctx_tasks[i].ctx.sp = (reg_t)&task_stack[i][STACK_SIZE - 1];
-	ctx_tasks[i].parent_id = -1;
-	return i;
+	ctx_tasks[taskTop].ctx.ra = (reg_t)task;
+	ctx_tasks[taskTop].ctx.sp = (reg_t)&task_stack[taskTop][STACK_SIZE - 1];
+	ctx_tasks[taskTop].parent_id = -1;
+	return taskTop++;
 }
 
-// fork a child task
+// fork a child process
 int task_fork(int pid)
 {
-	if (MAX_TASK + 1 == taskTop)
+	if (MAX_TASK == taskTop)
 		return -1;
 	// Parent process
 	if (ctx_tasks[pid].parent_id == -1)
 	{
-		int i = taskTop++;
-		ctx_tasks[i].ctx.ra = ctx_tasks[pid].ctx.ra;
-		ctx_tasks[i].ctx.sp = ctx_tasks[pid].ctx.sp;
-		ctx_tasks[i].parent_id = pid;
-		return i;
+		ctx_tasks[taskTop].ctx.ra = ctx_tasks[pid].ctx.ra;
+		ctx_tasks[taskTop].ctx.sp = ctx_tasks[pid].ctx.sp;
+		ctx_tasks[taskTop].parent_id = pid;
+		return taskTop++;
 	}
 	return 0;
+}
+
+// Kill the child process
+void task_killer()
+{
+	for (int i = 0; i <= 1; i++)
+	{
+		ctx_tasks[taskTop].ctx.ra = 0;
+		ctx_tasks[taskTop].ctx.sp = 0;
+		ctx_tasks[taskTop].parent_id = 0;
+		taskTop--;
+		minus_current_task();
+	}
+	os_kernel();
 }
 
 // switch to task[i]

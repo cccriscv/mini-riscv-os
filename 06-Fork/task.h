@@ -13,5 +13,6 @@ extern int task_create(void (*task)(void));
 extern int task_fork(int pid);
 extern void task_go(int i);
 extern void task_os();
+extern void task_killer();
 
 #endif

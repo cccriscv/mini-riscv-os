@@ -28,6 +28,7 @@ void user_task2(void)
 	{
 		lib_puts("I'm parent!\n");
 		lib_delay(3000);
+		wait();
 	}
 	if (res == 0)
 	{
