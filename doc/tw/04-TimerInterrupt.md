@@ -12,6 +12,30 @@
 
 本章將為第五章的《搶先式多工系統》鋪路，介紹如何在 RISC-V 處理器中使用《時間中斷機制》。有了時間中斷之後，我們就可以定時強制取回控制權，而不用害怕惡霸行程佔據系統，不歸還控制權給作業系統了。
 
+## 先備知識
+在學習系統如何實現時間中斷機制之前，我們必須先了解幾件事情:
+- 如何產生 Timer interrupt
+- 什麼是中斷向量表?
+
+### 如何產生 Timer interrupt
+RISC-V 架構有規定，系統平台必須要有一個計時器。並且，該計時器必須具備兩個 64-bit 的暫存器 mtime 以及 mtimecmp ，前者用於紀錄當前計數器的值，後者則是 mtime 的比較值，當 value of mtime > value of mtimecmp 時便會產生中斷。
+而這兩個寄存器也被定義在 [riscv.h](https://github.com/cccriscv/mini-riscv-os/blob/master/04-TimerInterrupt/riscv.h) 中:
+```c=
+// ================== Timer Interrput ====================
+
+#define NCPU 8             // maximum number of CPUs
+#define CLINT 0x2000000
+#define CLINT_MTIMECMP(hartid) (CLINT + 0x4000 + 4*(hartid))
+#define CLINT_MTIME (CLINT + 0xBFF8) // cycles since boot.
+```
+在了解如何產生 Timer interrupt 後，等等在下面的介紹我們就會看到有一段程式碼描述每個中斷觸發的時間間隔 (Interval)。
+不只如此，我們還需要在系統初始化的時候開啟 Timer interrupt ，具體的作法是: 開啟將 mie register 負責管理 Timer interrupt 的域寫成 1 。
+
+### 什麼是中斷向量表
+中斷向量表是一個由系統程式維護的 Table ，我們可以將對應的 Interrupt_Handler 放進中斷向量表，這樣一來，當時間中斷發生時，系統就會 Trap 進 Interrupt_Handler ，等到中斷與異常的處理結束後再跳回原本的指令位址繼續執行。
+> 補充:
+> 當異常或是中斷發生時，處理器會停止手邊的工作，再將 Program counter 的位址指向 mtvec 所指的位址並開始執行。這樣的行為就好像是主動跳入陷阱一樣，因此，在 RISC-V 的架構中將這個動作定義為 Trap ，在 xv6 (risc-v) 作業系統中，我們也可以在 Kernel 端的原始碼找到一系列處理 Interrupt 的操作 (大多定義在 Trap.c 之中)。
+
 ## 系統執行
 
 首先讓我們展示一下系統的執行狀況，當你用 make clean, make 等指令建置好
