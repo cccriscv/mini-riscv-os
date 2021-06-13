@@ -138,12 +138,12 @@ trap_vector:
 	# trap_handler will return the return address via a0.
 	csrw	mepc, a0
 
-	# restore context(registers).
+	# load context(registers).
 	csrr	t6, mscratch
 	reg_load t6
 
-        la a1, os_kernel # mepc = sys_kernel
-        csrw mepc, a1     # mret : will jump to sys_kernel
-	# return to whatever we were doing before trap.
+        # jump to sys_kernel
+        la a1, os_kernel # a1 = os_kernel
+        csrw mepc, a1    # mepc = sys_kernel
 	mret
 

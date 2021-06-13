@@ -1,7 +1,5 @@
 #include "timer.h"
 
-extern void os_kernel();
-
 // a scratch area per CPU for machine-mode timer interrupts.
 reg_t timer_scratch[NCPU][5];
 
