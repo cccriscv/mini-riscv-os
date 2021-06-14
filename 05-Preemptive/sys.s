@@ -141,9 +141,5 @@ trap_vector:
 	# load context(registers).
 	csrr	t6, mscratch
 	reg_load t6
-
-        # jump to sys_kernel
-        la a1, os_kernel # a1 = os_kernel
-        csrw mepc, a1    # mepc = sys_kernel
 	mret
 
