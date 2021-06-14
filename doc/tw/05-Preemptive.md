@@ -67,7 +67,7 @@ QEMU: Terminated
 OS=>Task0=>OS=>Task1=>OS=>Task0=>OS=>Task1 ....
 ```
 
-唯一不同的是，第三章的使用者行程必須主動透過 os_kernel() 歸還控制權給作業系統，
+唯一不同的是，第三章的使用者行程必須主動透過 `os_kernel()` 歸還控制權給作業系統，
 
 ```cpp
 void user_task0(void)
@@ -112,7 +112,7 @@ void lib_delay(volatile int count)
 
 - https://github.com/ccc-c/mini-riscv-os/blob/master/05-Preemptive/os.c
 
-作業系統 os.c 一開始會呼叫 user_init() ，讓使用者建立 task (在本範例中會在 [user.c] 裏建立 user_task0 與 user_task1。
+作業系統 os.c 一開始會呼叫 `user_init()` ，讓使用者建立 task (在本範例中會在 [user.c] 裏建立 user_task0 與 user_task1。
 
 ```cpp
 #include "os.h"
@@ -141,7 +141,7 @@ void user_init() {
 }
 ```
 
-然後作業系統會在 os_start() 裏透過 timer_init() 函數設定時間中斷，接著就是進入 os_main() 的主迴圈裏，該迴圈採用 Round-Robin 的大輪迴排班方法，每次切換就選下一個 task 來執行 (若已到最後一個 task ，接下來就是第 0 個 task)。
+然後作業系統會在 `os_start()` 裏透過 `timer_init()` 函數設定時間中斷，接著就是進入 `os_main()` 的主迴圈裏，該迴圈採用 Round-Robin 的大輪迴排班方法，每次切換就選下一個 task 來執行 (若已到最後一個 task ，接下來就是第 0 個 task)。
 
 ```cpp
 
@@ -195,10 +195,6 @@ trap_vector:
 	# load context(registers).
 	csrr	t6, mscratch
 	reg_load t6
-
-  # jump to sys_kernel
-  la a1, os_kernel # a1 = os_kernel
-  csrw mepc, a1    # mepc = sys_kernel
 	mret
 ```
 
@@ -220,7 +216,12 @@ reg_t trap_handler(reg_t epc, reg_t cause)
       break;
     case 7:
       lib_puts("timer interruption!\n");
+      // disable machine-mode timer interrupts.
+      w_mie(~((~r_mie()) | (1 << 7)));
       timer_handler();
+      return_pc = (reg_t)&os_kernel;
+      // enable machine-mode timer interrupts.
+      w_mie(r_mie() | MIE_MTIE);
       break;
     case 11:
       lib_puts("external interruption!\n");
@@ -303,7 +304,34 @@ void timer_handler()
 
 ```
 
-看到 [timer.c] 裏的 `timer_handler()`，它會將 `MTIMECMP` 做 reset 的動作，等到 `timer_handler()` 執行完畢，中斷向量表 `trap_vector()` 會將 mepc 指向 `os_kernel()` ，做到任務切換的功能。
+看到 [timer.c] 裏的 `timer_handler()`，它會將 `MTIMECMP` 做 reset 的動作。
+
+```c=
+/* In trap_handler() */
+// ...
+case 7:
+      lib_puts("timer interruption!\n");
+      // disable machine-mode timer interrupts.
+      w_mie(~((~r_mie()) | (1 << 7)));
+      timer_handler();
+      return_pc = (reg_t)&os_kernel;
+      // enable machine-mode timer interrupts.
+      w_mie(r_mie() | MIE_MTIE);
+      break;
+// ...
+```
+
+- 為了避免 Timer Interrupt 出現中断嵌套的情況，在處理中斷之前， `trap_handler()` 會將 timer interrupt 關閉，等到處理完成後再打開。
+- `timer_handler()` 執行完畢後， `trap_handler()` 會將 mepc 指向 `os_kernel()` ，做到任務切換的功能。
+  換言之，如果中斷不屬於 Timer Interrupt ， Program counter 則會跳回進入中斷前的狀態，這個步驟定義在 `trap_vector()` 中:
+
+```assembly=
+csrr	a0, mepc # a0 => arg1 (return_pc) of trap_handler()
+```
+
+> **補充**
+> 在 RISC-V 中，函式的參數會被優先存進 a0 - a7 暫存器，如果不夠用，才會存入 Stack 。
+> 其中， a0 與 a1 暫存器還有作為函式返回值的作用。
 
 最後，記得在 Kernel 開機時導入 trap 以及 timer 的初始化動作:
 
@@ -335,6 +363,8 @@ void os_start()
 
 以下提供更多關於 RISC-V 的學習資源，以方便大家在學習 RISC-V 作業系統設計時，不需再經過太多的摸索。
 
+- [AwesomeCS Wiki](https://github.com/ianchen0119/AwesomeCS/wiki)
+- [Step by step, learn to develop an operating system on RISC-V](https://github.com/plctlab/riscv-operating-system-mooc)
 - [RISC-V 手册 - 一本开源指令集的指南 (PDF)](http://crva.ict.ac.cn/documents/RISC-V-Reader-Chinese-v2p1.pdf)
 - [The RISC-V Instruction Set Manual Volume II: Privileged Architecture Privileged Architecture (PDF)](https://riscv.org//wp-content/uploads/2019/12/riscv-spec-20191213.pdf)
 - [RISC-V Assembly Programmer's Manual](https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md)
