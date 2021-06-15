@@ -25,7 +25,12 @@ reg_t trap_handler(reg_t epc, reg_t cause)
       break;
     case 7:
       lib_puts("timer interruption!\n");
+      // disable machine-mode timer interrupts.
+      w_mie(~((~r_mie()) | (1 << 7)));
       timer_handler();
+      return_pc = (reg_t)&os_kernel;
+      // enable machine-mode timer interrupts.
+      w_mie(r_mie() | MIE_MTIE);
       break;
     case 11:
       lib_puts("external interruption!\n");
