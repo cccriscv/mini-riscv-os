@@ -2,7 +2,7 @@
 
 專案 -- https://github.com/ccc-c/mini-riscv-os/tree/master/01-HelloOs
 
-在本系列的文章中，我們將介紹如何建構一個 RISC-V 處理器上的嵌入式作業系統，該作業系統名稱為 mini-arm-os 。(其實是一系列的程式，非單一系統)
+在本系列的文章中，我們將介紹如何建構一個 RISC-V 處理器上的嵌入式作業系統，該作業系統名稱為 mini-riscv-os 。(其實是一系列的程式，非單一系統)
 
 首先在本章中，我們將介紹一個最簡單可以印出 `Hello OS!` 的程式該怎麼寫！
 
