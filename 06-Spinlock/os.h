@@ -9,12 +9,12 @@
 extern void user_init();
 extern void os_kernel();
 extern int os_main(void);
-extern void spinlock_lock();
-extern void spinlock_unlock();
+extern void basic_lock();
+extern void basic_unlock();
 
 typedef struct lock
 {
-  int locked;
+  volatile int locked;
 } lock_t;
 
 extern int atomic_swap(lock_t *);

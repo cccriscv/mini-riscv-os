@@ -21,12 +21,12 @@ void lock_free(lock_t *lock)
   lock->locked = 0;
 }
 
-void spinlock_lock()
+void basic_lock()
 {
   w_mstatus(r_mstatus() & ~MSTATUS_MIE);
 }
 
-void spinlock_unlock()
+void basic_unlock()
 {
   w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
