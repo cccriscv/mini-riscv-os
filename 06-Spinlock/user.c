@@ -2,6 +2,8 @@
 
 int shared_var = 500;
 
+lock_t lock;
+
 void user_task0(void)
 {
 	lib_puts("Task0: Created!\n");
@@ -29,18 +31,33 @@ void user_task2(void)
 	{
 		for (int i = 0; i < 50; i++)
 		{
-			spinlock_lock();
+			lock_acquire(&lock);
 			shared_var++;
-			spinlock_unlock();
+			lock_free(&lock);
+			lib_delay(100);
 		}
-		lib_delay(6000);
 		lib_printf("The value of shared_var is: %d \n", shared_var);
+	}
+}
+
+void user_task3(void)
+{
+	lib_puts("Task3: Created!\n");
+	while (1)
+	{
+		lib_puts("Tryin to get the lock... \n");
+		lock_acquire(&lock);
+		lib_puts("Get the lock!\n");
+		lock_free(&lock);
+		lib_delay(1000);
 	}
 }
 
 void user_init()
 {
+	lock_init(&lock);
 	task_create(&user_task0);
 	task_create(&user_task1);
 	task_create(&user_task2);
+	task_create(&user_task3);
 }

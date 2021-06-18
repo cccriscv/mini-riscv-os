@@ -121,6 +121,13 @@ sys_switch:
         ctx_load a1  # a1 => struct context *new
         ret          # pc=ra; swtch to new task (new->ra)
 
+.globl atomic_swap
+.align 4
+atomic_swap:
+        li a5, 1
+        amoswap.w.aq a5, a5, 0(a0)
+        mv a0, a5
+        ret
 
 .globl trap_vector
 # the trap vector base address must always be aligned on a 4-byte boundary

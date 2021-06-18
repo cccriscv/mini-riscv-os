@@ -12,4 +12,17 @@ extern int os_main(void);
 extern void spinlock_lock();
 extern void spinlock_unlock();
 
+typedef struct lock
+{
+  int locked;
+} lock_t;
+
+extern int atomic_swap(lock_t *);
+
+extern void lock_init(lock_t *lock);
+
+extern void lock_acquire(lock_t *lock);
+
+extern void lock_free(lock_t *lock);
+
 #endif
