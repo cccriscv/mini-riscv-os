@@ -6,6 +6,7 @@
 #include "task.h"
 #include "timer.h"
 
+extern void panic(char *);
 extern void user_init();
 extern void os_kernel();
 extern int os_main(void);

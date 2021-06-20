@@ -2,6 +2,14 @@
 
 extern void trap_init(void);
 
+void panic(char *s)
+{
+	lib_puts(s);
+	for (;;)
+	{
+	}
+}
+
 void os_kernel()
 {
 	task_os();

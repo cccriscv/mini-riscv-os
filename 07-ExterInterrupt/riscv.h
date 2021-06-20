@@ -6,31 +6,29 @@
 #define reg_t uint32_t // RISCV32: register is 32bits
 // define reg_t as uint64_t // RISCV64: register is 64bits
 
-// ref: https://github.com/qemu/qemu/blob/master/include/hw/riscv/virt.h
-// Intro: https://github.com/ianchen0119/AwesomeCS/wiki/2-5-RISC-V::%E4%B8%AD%E6%96%B7%E8%88%87%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86----PLIC-%E4%BB%8B%E7%B4%B9
-#define PLIC_BASE 0x0c000000L
-#define PLIC_PRIORITY(id) (PLIC_BASE + (id)*4)
-#define PLIC_PENDING(id) (PLIC_BASE + 0x1000 + ((id) / 32))
-#define PLIC_MENABLE(hart) (PLIC_BASE + 0x2000 + (hart)*0x80)
-#define PLIC_MTHRESHOLD(hart) (PLIC_BASE + 0x200000 + (hart)*0x1000)
-#define PLIC_MCLAIM(hart) (PLIC_BASE + 0x200004 + (hart)*0x1000)
-#define PLIC_MCOMPLETE(hart) (PLIC_BASE + 0x200004 + (hart)*0x1000)
-
 // ref: https://www.activexperts.com/serial-port-component/tutorials/uart/
 #define UART 0x10000000L
-#define UART_THR (uint8_t *)(UART + 0x00) // THR:transmitter holding register
-#define UART_RHR (uint8_t *)(UART + 0x00) // RHR:Receive holding register
-#define UART_DLL (uint8_t *)(UART + 0x00) // LSB of Divisor Latch (write mode)
-#define UART_DLM (uint8_t *)(UART + 0x01) // MSB of Divisor Latch (write mode)
-#define UART_IER (uint8_t *)(UART + 0x01) // Interrupt Enable Register
-#define UART_LCR (uint8_t *)(UART + 0x03) // Line Control Register
-#define UART_LSR (uint8_t *)(UART + 0x05) // LSR:line status register
-#define UART_LSR_EMPTY_MASK 0x40          // LSR Bit 6: Transmitter empty; both the THR and LSR are empty
+#define UART_THR (volatile uint8_t *)(UART + 0x00) // THR:transmitter holding register
+#define UART_RHR (volatile uint8_t *)(UART + 0x00) // RHR:Receive holding register
+#define UART_DLL (volatile uint8_t *)(UART + 0x00) // LSB of Divisor Latch (write mode)
+#define UART_DLM (volatile uint8_t *)(UART + 0x01) // MSB of Divisor Latch (write mode)
+#define UART_IER (volatile uint8_t *)(UART + 0x01) // Interrupt Enable Register
+#define UART_LCR (volatile uint8_t *)(UART + 0x03) // Line Control Register
+#define UART_LSR (volatile uint8_t *)(UART + 0x05) // LSR:line status register
+#define UART_LSR_EMPTY_MASK 0x40                   // LSR Bit 6: Transmitter empty; both the THR and LSR are empty
 
 #define UART_REGR(reg) (*(reg))
 #define UART_REGW(reg, v) ((*reg) = (v))
 
 // ref: https://github.com/qemu/qemu/blob/master/include/hw/riscv/virt.h
+// enum {
+//     UART0_IRQ = 10,
+//     RTC_IRQ = 11,
+//     VIRTIO_IRQ = 1, /* 1 to 8 */
+//     VIRTIO_COUNT = 8,
+//     PCIE_IRQ = 0x20, /* 32 to 35 */
+//     VIRTIO_NDEV = 0x35 /* Arbitrary maximum number of interrupts */
+// };
 #define UART0_IRQ 10
 #define VIRTIO_IRQ 1
 

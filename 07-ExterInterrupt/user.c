@@ -4,16 +4,6 @@ int shared_var = 500;
 
 lock_t lock;
 
-void test()
-{
-	for (;;)
-	{
-		int ch = lib_getc();
-		if (ch >= 0)
-			lib_putc(ch);
-	}
-}
-
 void user_task0(void)
 {
 	lib_puts("Task0: Created!\n");
@@ -55,7 +45,7 @@ void user_task3(void)
 	lib_puts("Task3: Created!\n");
 	while (1)
 	{
-		lib_puts("Tryin to get the lock... \n");
+		lib_puts("Trying to get the lock... \n");
 		lock_acquire(&lock);
 		lib_puts("Get the lock!\n");
 		lock_free(&lock);
@@ -65,10 +55,9 @@ void user_task3(void)
 
 void user_init()
 {
-	// task_create(&test);
-	// lock_init(&lock);
+	lock_init(&lock);
 	task_create(&user_task0);
 	task_create(&user_task1);
-	// task_create(&user_task2);
-	// task_create(&user_task3);
+	task_create(&user_task2);
+	task_create(&user_task3);
 }

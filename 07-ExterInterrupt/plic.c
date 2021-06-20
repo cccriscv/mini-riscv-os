@@ -1,5 +1,15 @@
 #include "os.h"
 
+// ref: https://github.com/qemu/qemu/blob/master/include/hw/riscv/virt.h
+// Intro: https://github.com/ianchen0119/AwesomeCS/wiki/2-5-RISC-V::%E4%B8%AD%E6%96%B7%E8%88%87%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86----PLIC-%E4%BB%8B%E7%B4%B9
+#define PLIC_BASE 0x0c000000L
+#define PLIC_PRIORITY(id) (PLIC_BASE + (id)*4)
+#define PLIC_PENDING(id) (PLIC_BASE + 0x1000 + ((id) / 32))
+#define PLIC_MENABLE(hart) (PLIC_BASE + 0x2000 + (hart)*0x80)
+#define PLIC_MTHRESHOLD(hart) (PLIC_BASE + 0x200000 + (hart)*0x1000)
+#define PLIC_MCLAIM(hart) (PLIC_BASE + 0x200004 + (hart)*0x1000)
+#define PLIC_MCOMPLETE(hart) (PLIC_BASE + 0x200004 + (hart)*0x1000)
+
 void plic_init()
 {
   int hart = r_tp();

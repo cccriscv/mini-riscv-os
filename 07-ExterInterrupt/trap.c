@@ -12,7 +12,6 @@ void external_handler()
   int irq = plic_claim();
   if (irq == UART0_IRQ)
   {
-    lib_printf("irq is %d \n", irq);
     lib_isr();
   }
   else if (irq)

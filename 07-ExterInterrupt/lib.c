@@ -1,7 +1,6 @@
 #include "lib.h"
 
 #define LSR_RX_READY (1 << 0)
-#define LSR_TX_IDLE (1 << 5)
 #define EOF 0
 
 void uart_init()
