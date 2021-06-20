@@ -17,7 +17,7 @@
 #define PLIC_MCOMPLETE(hart) (PLIC_BASE + 0x200004 + (hart)*0x1000)
 
 // ref: https://www.activexperts.com/serial-port-component/tutorials/uart/
-#define UART 0x10000000
+#define UART 0x10000000L
 #define UART_THR (uint8_t *)(UART + 0x00) // THR:transmitter holding register
 #define UART_RHR (uint8_t *)(UART + 0x00) // RHR:Receive holding register
 #define UART_DLL (uint8_t *)(UART + 0x00) // LSB of Divisor Latch (write mode)
@@ -27,9 +27,8 @@
 #define UART_LSR (uint8_t *)(UART + 0x05) // LSR:line status register
 #define UART_LSR_EMPTY_MASK 0x40          // LSR Bit 6: Transmitter empty; both the THR and LSR are empty
 
-#define UART_REG(reg) ((volatile uint8_t *)(UART + reg))
-#define UART_REGR(reg) (*(UART_REG(reg)))
-#define UART_REGW(reg, v) (*(UART_REG(reg)) = (v))
+#define UART_REGR(reg) (*(reg))
+#define UART_REGW(reg, v) ((*reg) = (v))
 
 // ref: https://github.com/qemu/qemu/blob/master/include/hw/riscv/virt.h
 #define UART0_IRQ 10
@@ -66,7 +65,16 @@ struct context
 #define CLINT_MTIMECMP(hartid) (CLINT + 0x4000 + 4 * (hartid))
 #define CLINT_MTIME (CLINT + 0xBFF8) // cycles since boot.
 
+static inline reg_t r_tp()
+{
+  reg_t x;
+  asm volatile("mv %0, tp"
+               : "=r"(x));
+  return x;
+}
+
 // which hart (core) is this?
+
 static inline reg_t r_mhartid()
 {
   reg_t x;

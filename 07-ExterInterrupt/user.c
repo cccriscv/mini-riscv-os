@@ -9,10 +9,8 @@ void test()
 	for (;;)
 	{
 		int ch = lib_getc();
-		if (ch <= 127 && ch >= 0)
-		{
+		if (ch >= 0)
 			lib_putc(ch);
-		}
 	}
 }
 
@@ -67,10 +65,10 @@ void user_task3(void)
 
 void user_init()
 {
-	task_create(&test);
+	// task_create(&test);
 	// lock_init(&lock);
-	// task_create(&user_task0);
-	// task_create(&user_task1);
+	task_create(&user_task0);
+	task_create(&user_task1);
 	// task_create(&user_task2);
 	// task_create(&user_task3);
 }

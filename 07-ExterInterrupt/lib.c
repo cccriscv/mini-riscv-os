@@ -2,6 +2,7 @@
 
 #define LSR_RX_READY (1 << 0)
 #define LSR_TX_IDLE (1 << 5)
+#define EOF 0
 
 void uart_init()
 {
@@ -16,6 +17,28 @@ void uart_init()
 
     lcr = 0;
     UART_REGW(UART_LCR, lcr | (3 << 0));
+
+    uint8_t ier = UART_REGR(UART_IER);
+    UART_REGW(UART_IER, ier | (1 << 0));
+}
+
+char *lib_gets(char *s)
+{
+    int ch;
+    char *p = s;
+
+    while ((ch = lib_getc()) != '\n' && ch != EOF)
+    {
+        if (ch == -1)
+        {
+            continue;
+        }
+        *s = (char)ch;
+        s++;
+    }
+
+    *s = '\0';
+    return p;
 }
 
 int lib_getc(void)

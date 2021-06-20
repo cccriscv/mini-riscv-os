@@ -9,8 +9,8 @@ void os_kernel()
 
 void os_start()
 {
-	lib_puts("OS start\n");
 	uart_init();
+	lib_puts("OS start\n");
 	user_init();
 	trap_init();
 	plic_init();

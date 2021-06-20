@@ -14,7 +14,9 @@
   }                          \
   }
 
+extern char *lib_gets(char *);
 extern void uart_init();
+extern void lib_isr(void);
 extern int lib_getc(void);
 extern void lib_delay(volatile int count);
 extern int lib_putc(char ch);
