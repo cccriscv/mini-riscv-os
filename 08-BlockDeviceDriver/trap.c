@@ -1,6 +1,6 @@
 #include "os.h"
 extern void trap_vector();
-
+extern void virtio_disk_isr();
 void trap_init()
 {
   // set the machine-mode trap handler.
@@ -13,6 +13,10 @@ void external_handler()
   if (irq == UART0_IRQ)
   {
     lib_isr();
+  }
+  else if (irq == VIRTIO_IRQ)
+  {
+    virtio_disk_isr();
   }
   else if (irq)
   {

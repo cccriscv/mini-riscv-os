@@ -37,8 +37,10 @@ And you should start your git-bash to build the project. (It works for me in vsc
   - Basic preemptive scheduling
 - [06-Spinlock](06-Spinlock)
   - Lock implementation for protec critical sections
-- [07-ExternInterrupt](07-ExternInterrupt)
+- [07-ExterInterrupt](07-ExterInterrupt)
   - Learing PLIC & external interruption
+- [08-BlockDeviceDriver](08-BlockDeviceDriver)
+  - Learning VirtIO Protocol & Device driver implementation
 
 ## Building and Verification
 

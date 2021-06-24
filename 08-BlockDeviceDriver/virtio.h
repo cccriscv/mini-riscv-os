@@ -6,7 +6,7 @@
 #define VIRTIO_MMIO_BASE 0x10001000
 /* OFFSET */
 #define VIRTIO_MMIO_MAGIC_VALUE 0x000 // Magic value must be 0x74726976
-#define VIRTIO_MMIO_VERSION 0x004 // Version: 1 (Legacy)
+#define VIRTIO_MMIO_VERSION 0x004     // Version: 1 (Legacy)
 /*
  * Device ID:
  * 1 (Network Device)
@@ -16,6 +16,7 @@
  * 18 (Input Device)
  */
 #define VIRTIO_MMIO_DEVICE_ID 0x008
+#define VIRTIO_MMIO_VENDOR_ID 0x00c // 0x554d4551
 #define VIRTIO_MMIO_DEVICE_FEATURES 0x010
 #define VIRTIO_MMIO_DRIVER_FEATURES 0x020
 #define VIRTIO_MMIO_GUEST_PAGE_SIZE 0x028  // page size for PFN, write-only
@@ -31,19 +32,19 @@
 #define VIRTIO_MMIO_STATUS 0x070           // read/write
 
 // status register bits, from qemu virtio_config.h
-#define VIRTIO_CONFIG_S_ACKNOWLEDGE	1
-#define VIRTIO_CONFIG_S_DRIVER		2
-#define VIRTIO_CONFIG_S_DRIVER_OK	4
-#define VIRTIO_CONFIG_S_FEATURES_OK	8
+#define VIRTIO_CONFIG_S_ACKNOWLEDGE 1
+#define VIRTIO_CONFIG_S_DRIVER 2
+#define VIRTIO_CONFIG_S_DRIVER_OK 4
+#define VIRTIO_CONFIG_S_FEATURES_OK 8
 
 // device feature bits
-#define VIRTIO_BLK_F_RO              5	/* Disk is read-only */
-#define VIRTIO_BLK_F_SCSI            7	/* Supports scsi command passthru */
-#define VIRTIO_BLK_F_CONFIG_WCE     11	/* Writeback mode available in config */
-#define VIRTIO_BLK_F_MQ             12	/* support more than one vq */
-#define VIRTIO_F_ANY_LAYOUT         27
+#define VIRTIO_BLK_F_RO 5          /* Disk is read-only */
+#define VIRTIO_BLK_F_SCSI 7        /* Supports scsi command passthru */
+#define VIRTIO_BLK_F_CONFIG_WCE 11 /* Writeback mode available in config */
+#define VIRTIO_BLK_F_MQ 12         /* support more than one vq */
+#define VIRTIO_F_ANY_LAYOUT 27
 #define VIRTIO_RING_F_INDIRECT_DESC 28
-#define VIRTIO_RING_F_EVENT_IDX     29
+#define VIRTIO_RING_F_EVENT_IDX 29
 
 // this many virtio descriptors.
 #define NUM 8
