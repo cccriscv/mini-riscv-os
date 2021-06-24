@@ -19,6 +19,7 @@ void os_start()
 {
 	uart_init();
 	lib_puts("OS start\n");
+	virtio_disk_init();
 	user_init();
 	trap_init();
 	plic_init();

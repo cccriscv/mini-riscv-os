@@ -1,5 +1,6 @@
 #include "virtio.h"
 #include "os.h"
+
 #define R(addr) ((volatile uint32_t *)(VIRTIO_MMIO_BASE + (addr)))
 #define BSIZE 1024 // block size
 #define PGSHIFT 12
@@ -8,10 +9,10 @@ struct buf
 {
   int valid; // has data been read from disk?
   int disk;  // does disk "own" buf?
-  uint32_t dev;
-  uint32_t blockno;
+  uint32 dev;
+  uint32 blockno;
   lock_t lock;
-  uint32_t refcnt;
+  uint32 refcnt;
   struct buf *prev; // LRU cache list
   struct buf *next;
   unsigned char data[BSIZE];
@@ -33,7 +34,7 @@ static struct disk
     struct buf *b;
     char status;
   } info[NUM];
-  uint16_t used_idx;
+  uint16 used_idx;
   /* Disk command headers */
   virtio_blk_req_t ops[NUM];
 
@@ -42,7 +43,7 @@ static struct disk
 
 void virtio_disk_init()
 {
-  uint32_t status = 0;
+  uint32 status = 0;
 
   lock_init(&disk.vdisk_lock);
 
@@ -60,7 +61,7 @@ void virtio_disk_init()
   status |= VIRTIO_CONFIG_S_DRIVER;
   *R(VIRTIO_MMIO_STATUS) = status;
   /* negotiate features */
-  uint64_t features = *R(VIRTIO_MMIO_DEVICE_FEATURES);
+  uint64 features = *R(VIRTIO_MMIO_DEVICE_FEATURES);
   features &= ~(1 << VIRTIO_BLK_F_RO);
   features &= ~(1 << VIRTIO_BLK_F_SCSI);
   features &= ~(1 << VIRTIO_BLK_F_CONFIG_WCE);
@@ -81,14 +82,14 @@ void virtio_disk_init()
   *R(VIRTIO_MMIO_GUEST_PAGE_SIZE) = PGSIZE;
   /* initialize queue 0. */
   *R(VIRTIO_MMIO_QUEUE_SEL) = 0;
-  uint32_t max = *R(VIRTIO_MMIO_QUEUE_NUM_MAX);
+  uint32 max = *R(VIRTIO_MMIO_QUEUE_NUM_MAX);
   if (max == 0)
     lib_puts("virtio disk has no queue 0\n");
   if (max < NUM)
     lib_puts("virtio disk max queue too short\n");
   *R(VIRTIO_MMIO_QUEUE_NUM) = NUM;
   memset(disk.pages, 0, sizeof(disk.pages));
-  *R(VIRTIO_MMIO_QUEUE_PFN) = ((uint64_t)disk.pages) >> PGSHIFT;
+  *R(VIRTIO_MMIO_QUEUE_PFN) = ((uint64)disk.pages) >> PGSHIFT;
 
   // desc = pages -- num * virtq_desc
   // avail = pages + 0x40 -- 2 * uint16, then num * uint16
@@ -132,7 +133,6 @@ free_desc(int i)
   disk.desc[i].flags = 0;
   disk.desc[i].next = 0;
   disk.free[i] = 1;
-  wakeup(&disk.free[0]);
 }
 
 // free a chain of descriptors.
@@ -171,7 +171,7 @@ alloc3_desc(int *idx)
 
 void virtio_disk_rw(struct buf *b, int write)
 {
-  uint64_t sector = b->blockno * (BSIZE / 512);
+  uint64 sector = b->blockno * (BSIZE / 512);
 
   lock_acquire(&disk.vdisk_lock);
 
@@ -201,12 +201,12 @@ void virtio_disk_rw(struct buf *b, int write)
   buf0->reserved = 0;             // The reserved portion is used to pad the header to 16 bytes and move the 64-bit sector field to the correct place.
   buf0->sector = sector;          // specify the sector that we wanna modified.
 
-  disk.desc[idx[0]].addr = (uint64_t)buf0;
+  disk.desc[idx[0]].addr = (uint64)buf0;
   disk.desc[idx[0]].len = sizeof(struct virtio_blk_req);
   disk.desc[idx[0]].flags = VRING_DESC_F_NEXT;
   disk.desc[idx[0]].next = idx[1];
 
-  disk.desc[idx[1]].addr = (uint64_t)b->data;
+  disk.desc[idx[1]].addr = (uint64)b->data;
   disk.desc[idx[1]].len = BSIZE;
   if (write)
     disk.desc[idx[1]].flags = 0; // device reads b->data
@@ -216,7 +216,7 @@ void virtio_disk_rw(struct buf *b, int write)
   disk.desc[idx[1]].next = idx[2];
 
   disk.info[idx[0]].status = 0xff; // device writes 0 on success
-  disk.desc[idx[2]].addr = (uint64_t)&disk.info[idx[0]].status;
+  disk.desc[idx[2]].addr = (uint64)&disk.info[idx[0]].status;
   disk.desc[idx[2]].len = 1;
   disk.desc[idx[2]].flags = VRING_DESC_F_WRITE; // device writes the status
   disk.desc[idx[2]].next = 0;
@@ -275,7 +275,6 @@ void virtio_disk_isr()
 
     struct buf *b = disk.info[id].b;
     b->disk = 0; // disk is done with buf
-    wakeup(b);
 
     disk.used_idx += 1;
   }

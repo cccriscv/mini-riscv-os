@@ -1,3 +1,4 @@
+#include "types.h"
 /*
  * References:
  * 1. https://github.com/ianchen0119/xv6-riscv/blob/riscv/kernel/virtio.h
@@ -58,10 +59,10 @@ typedef struct virtq_desc
    * flags: 用於控制 descriptor 。
    * next: 告訴 Device 下一個描述符的 Index 。如果指定了 VIRTQ_DESC_F_NEXT， Device 僅讀取該字段。否則無效。
    */
-  uint64_t addr;
-  uint32_t len;
-  uint16_t flags;
-  uint16_t next;
+  uint64 addr;
+  uint32 len;
+  uint16 flags;
+  uint16 next;
 } virtq_desc_t;
 #define VRING_DESC_F_NEXT 1  // chained with another descriptor
 #define VRING_DESC_F_WRITE 2 // device writes (vs read)
@@ -72,10 +73,10 @@ typedef struct virtq_desc
  */
 typedef struct virtq_avail
 {
-  uint16_t flags;     // always zero
-  uint16_t idx;       // driver will write ring[idx] next
-  uint16_t ring[NUM]; // descriptor numbers of chain heads
-  uint16_t unused;
+  uint16 flags;     // always zero
+  uint16 idx;       // driver will write ring[idx] next
+  uint16 ring[NUM]; // descriptor numbers of chain heads
+  uint16 unused;
 } virtq_avail_t;
 
 /*
@@ -84,8 +85,8 @@ typedef struct virtq_avail
 
 typedef struct virtq_used_elem
 {
-  uint32_t id; // index of start of completed descriptor chain
-  uint32_t len;
+  uint32 id; // index of start of completed descriptor chain
+  uint32 len;
 } virtq_used_elem_t;
 
 /*
@@ -96,8 +97,8 @@ typedef struct virtq_used_elem
 
 typedef struct virtq_used
 {
-  uint16_t flags; // always zero
-  uint16_t idx;   // device increments when it adds a ring[] entry
+  uint16 flags; // always zero
+  uint16 idx;   // device increments when it adds a ring[] entry
   struct virtq_used_elem ring[NUM];
 } virtq_used_t;
 
@@ -112,7 +113,7 @@ typedef struct virtq_used
 // the block, and a one-byte status.
 typedef struct virtio_blk_req
 {
-  uint32_t type;     // VIRTIO_BLK_T_IN or ..._OUT
-  uint32_t reserved; // 將 Header 擴充到 16-byte ，並將 64-bit sector 移到正確的位置。
-  uint64_t sector;
+  uint32 type;     // VIRTIO_BLK_T_IN or ..._OUT
+  uint32 reserved; // 將 Header 擴充到 16-byte ，並將 64-bit sector 移到正確的位置。
+  uint64 sector;
 } virtio_blk_req_t;

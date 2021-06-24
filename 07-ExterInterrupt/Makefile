@@ -15,7 +15,7 @@ lock.c \
 plic.c
 
 QEMU = qemu-system-riscv32
-QFLAGS = -nographic -smp 1 -machine virt -bios none
+QFLAGS = -nographic -smp 4 -machine virt -bios none
 
 OBJDUMP = riscv64-unknown-elf-objdump
 

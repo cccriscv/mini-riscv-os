@@ -1,5 +1,5 @@
 CC = riscv64-unknown-elf-gcc
-CFLAGS = -nostdlib -fno-builtin -mcmodel=medany -march=rv32ima -mabi=ilp32 -g -Wall
+CFLAGS = -nostdlib -fno-builtin -mcmodel=medany -march=rv32ima -mabi=ilp32 -g -Wall -w
 GDB = riscv64-unknown-elf-gdb
 
 OBJ = \
@@ -13,10 +13,13 @@ user.c \
 trap.c \
 lock.c \
 plic.c \
-virtio.c
+virtio.c \
+string.c
 
 QEMU = qemu-system-riscv32
-QFLAGS = -nographic -smp 1 -machine virt -bios none
+QFLAGS = -nographic -smp 4 -machine virt -bios none
+QFLAGS += -drive file=fs.img,if=none,format=raw,id=x0
+QFLAGS += -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 
 OBJDUMP = riscv64-unknown-elf-objdump
 
@@ -32,6 +35,9 @@ qemu: $(TARGET)
 
 clean:
 	rm -f *.elf
+
+fs.img:
+	qemu-img create -f raw fs.img 50M
 
 .PHONY : debug
 debug: all

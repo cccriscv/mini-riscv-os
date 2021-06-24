@@ -5,6 +5,7 @@
 #include "lib.h"
 #include "task.h"
 #include "timer.h"
+#include "string.h"
 
 extern void panic(char *);
 extern void user_init();
