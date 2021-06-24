@@ -18,6 +18,17 @@ struct buf
   unsigned char data[BSIZE];
 };
 
+struct
+{
+  lock_t lock;
+  struct buf buf[30];
+
+  // Linked list of all buffers, through prev/next.
+  // Sorted by how recently the buffer was used.
+  // head.next is most recent, head.prev is least.
+  struct buf head;
+} bcache;
+
 static struct disk
 {
   char pages[2 * PGSIZE];
@@ -40,6 +51,40 @@ static struct disk
 
   struct lock vdisk_lock;
 } __attribute__((aligned(PGSIZE))) disk;
+
+void virtio_tester()
+{
+  // int valid; // has data been read from disk?
+  // int disk;  // does disk "own" buf?
+  // uint32 dev;
+  // uint32 blockno;
+  // lock_t lock;
+  // uint32 refcnt;
+  // struct buf *prev; // LRU cache list
+  // struct buf *next;
+  // unsigned char data[BSIZE];
+  struct buf b[3];
+  lib_puts("buffer init...\n");
+  for (size_t i = 0; i < 3; i++)
+  {
+    b[i].valid = 1;
+    b[i].disk = 1;
+    b[i].dev = 1;
+    b[i].blockno = i;
+    for (size_t j = 0; j < BSIZE; j++)
+    {
+      b[i].data[j] = (j + i + 1) % 10;
+    }
+
+    lock_init(&(b[i].lock));
+  }
+  lib_puts("buffer write...\n");
+  for (size_t i = 0; i < 3; i++)
+  {
+    virtio_disk_rw(&b[i], 1);
+  }
+  lib_puts("wait...\n");
+}
 
 void virtio_disk_init()
 {
@@ -180,6 +225,7 @@ void virtio_disk_rw(struct buf *b, int write)
   // data, one for a 1-byte status result.
 
   // allocate the three descriptors.
+  lib_puts("rw init...\n");
   int idx[3];
   while (1)
   {
@@ -227,7 +273,7 @@ void virtio_disk_rw(struct buf *b, int write)
 
   // tell the device the first index in our chain of descriptors.
   disk.avail->ring[disk.avail->idx % NUM] = idx[0];
-
+  lib_puts("rw wait...\n");
   __sync_synchronize();
 
   // tell the device another avail ring entry is available.
@@ -238,9 +284,9 @@ void virtio_disk_rw(struct buf *b, int write)
   *R(VIRTIO_MMIO_QUEUE_NOTIFY) = 0; // value is queue number
 
   // Wait for virtio_disk_intr() to say request has finished.
-  while (b->disk == 1)
-  {
-  }
+  // while (b->disk == 1)
+  // {
+  // }
 
   disk.info[idx[0]].b = 0;
   free_chain(idx[0]);

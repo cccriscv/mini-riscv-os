@@ -53,11 +53,13 @@ void user_task3(void)
 	}
 }
 
+extern virtio_tester();
+
 void user_init()
 {
-	lock_init(&lock);
+	// lock_init(&lock);
 	task_create(&user_task0);
 	task_create(&user_task1);
-	task_create(&user_task2);
-	task_create(&user_task3);
+	// task_create(&user_task2);
+	// task_create(&user_task3);
 }

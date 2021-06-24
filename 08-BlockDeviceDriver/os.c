@@ -24,12 +24,12 @@ void os_start()
 	trap_init();
 	plic_init();
 	timer_init(); // start timer interrupt ...
+	virtio_tester();
 }
 
 int os_main(void)
 {
 	os_start();
-
 	int current_task = 0;
 	while (1)
 	{

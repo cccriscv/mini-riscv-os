@@ -108,7 +108,7 @@ struct virtq_used
 +------------------+
 ```
 
-為了精簡，我們會將 Buffer 抽離，完成 Device Driver 後會更方便我們在日後實現檔案系統。
+完成 Device Driver 方便我們在日後實現檔案系統。
 
 ### 指定寫入的 Sector
 
