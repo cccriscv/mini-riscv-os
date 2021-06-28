@@ -59,7 +59,7 @@ typedef struct virtq_desc
    * flags: 用於控制 descriptor 。
    * next: 告訴 Device 下一個描述符的 Index 。如果指定了 VIRTQ_DESC_F_NEXT， Device 僅讀取該字段。否則無效。
    */
-  uint64 addr;
+  uint32 addr;
   uint32 len;
   uint16 flags;
   uint16 next;
@@ -115,5 +115,5 @@ typedef struct virtio_blk_req
 {
   uint32 type;     // VIRTIO_BLK_T_IN or ..._OUT
   uint32 reserved; // 將 Header 擴充到 16-byte ，並將 64-bit sector 移到正確的位置。
-  uint64 sector;
+  uint32 sector;
 } virtio_blk_req_t;

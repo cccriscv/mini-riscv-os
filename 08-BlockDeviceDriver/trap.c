@@ -14,8 +14,9 @@ void external_handler()
   {
     lib_isr();
   }
-  else if (irq == VIRTIO_IRQ)
+  else if (0 < irq < 9)
   {
+    panic("Virio IRQ");
     virtio_disk_isr();
   }
   else if (irq)
@@ -63,7 +64,7 @@ reg_t trap_handler(reg_t epc, reg_t cause)
   else
   {
     /* Synchronous trap - exception */
-    lib_puts("Sync exceptions!\n");
+    lib_printf("Sync exceptions! cause code: %d\n", cause_code);
     while (1)
     {
       /* code */

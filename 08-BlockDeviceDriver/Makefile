@@ -18,12 +18,12 @@ string.c
 
 QEMU = qemu-system-riscv32
 QFLAGS = -nographic -smp 4 -machine virt -bios none
-QFLAGS += -drive file=fs.img,if=none,format=raw,id=x0
+QFLAGS += -drive if=none,format=raw,file=hdd.dsk,id=x0
 QFLAGS += -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 
 OBJDUMP = riscv64-unknown-elf-objdump
 
-all: os.elf
+all: clean os.elf hdd.dsk qemu
 
 os.elf: $(OBJ)
 	$(CC) $(CFLAGS) -T os.ld -o os.elf $^
@@ -34,10 +34,10 @@ qemu: $(TARGET)
 	$(QEMU) $(QFLAGS) -kernel os.elf
 
 clean:
-	rm -f *.elf
+	rm -f *.elf *.img *.dsk
 
-fs.img:
-	qemu-img create -f raw fs.img 50M
+hdd.dsk:
+	dd if=/dev/urandom of=hdd.dsk bs=1M count=32
 
 .PHONY : debug
 debug: all

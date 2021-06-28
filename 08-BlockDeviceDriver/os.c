@@ -19,12 +19,13 @@ void os_start()
 {
 	uart_init();
 	lib_puts("OS start\n");
-	virtio_disk_init();
 	user_init();
 	trap_init();
 	plic_init();
+	virtio_disk_init();
 	timer_init(); // start timer interrupt ...
-	virtio_tester();
+	virtio_tester(1);
+	virtio_tester(0);
 }
 
 int os_main(void)

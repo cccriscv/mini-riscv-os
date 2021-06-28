@@ -108,7 +108,7 @@ struct virtq_used
 +------------------+
 ```
 
-完成 Device Driver 方便我們在日後實現檔案系統。
+完成 Device Driver 會讓我們在日後實現檔案系統更為方便，此外，參考 xv6-riscv 的設計，我們還會需要實現一層 Buffer cache 用來同步硬碟上的資料。
 
 ### 指定寫入的 Sector
 
@@ -153,7 +153,7 @@ if(write)
   buf0->type = VIRTIO_BLK_T_OUT; // write the disk
 else
   buf0->type = VIRTIO_BLK_T_IN; // read the disk
-buf0->reserved = 0; // The reserved portion is used to pad the header to 16 bytes and move the 64-bit sector field to the correct place.
+buf0->reserved = 0; // The reserved portion is used to pad the header to 16 bytes and move the 32-bit sector field to the correct place.
 buf0->sector = sector; // specify the sector that we wanna modified.
 ```
 
