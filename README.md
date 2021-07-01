@@ -37,8 +37,10 @@ And you should start your git-bash to build the project. (It works for me in vsc
   - Basic preemptive scheduling
 - [06-Spinlock](06-Spinlock)
   - Lock implementation for protec critical sections
-- [07-ExternInterrupt](07-ExternInterrupt)
+- [07-ExterInterrupt](07-ExterInterrupt)
   - Learing PLIC & external interruption
+- [08-BlockDeviceDriver](08-BlockDeviceDriver)
+  - Learning VirtIO Protocol & Device driver implementation
 
 ## Building and Verification
 
@@ -60,3 +62,4 @@ in the `LICENSE` file.
 - [Adventures in RISC-V](https://matrix89.github.io/writes/writes/experiments-in-riscv/)
 - [Xv6, a simple Unix-like teaching operating system](https://pdos.csail.mit.edu/6.828/2020/xv6.html)
 - [Basics of programming a UART](https://www.activexperts.com/serial-port-component/tutorials/uart/)
+- [QEMU RISC-V Virt Machine Platform](https://github.com/riscv/opensbi/blob/master/docs/platform/qemu_virt.md)

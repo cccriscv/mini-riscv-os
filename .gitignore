@@ -7,4 +7,6 @@
 *.bak
 bak
 .vscode
+*.img
+*.dsk
 
