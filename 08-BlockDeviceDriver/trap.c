@@ -16,7 +16,7 @@ void external_handler()
   }
   else if (0 < irq < 9)
   {
-    panic("Virio IRQ");
+    lib_puts("Virio IRQ\n");
     virtio_disk_isr();
   }
   else if (irq)
@@ -41,10 +41,10 @@ reg_t trap_handler(reg_t epc, reg_t cause)
     switch (cause_code)
     {
     case 3:
-      lib_puts("software interruption!\n");
+      /* software interruption */
       break;
     case 7:
-      lib_puts("timer interruption!\n");
+      /* timer interruption */
       // disable machine-mode timer interrupts.
       w_mie(r_mie() & ~(1 << 7));
       timer_handler();
@@ -53,7 +53,7 @@ reg_t trap_handler(reg_t epc, reg_t cause)
       w_mie(r_mie() | MIE_MTIE);
       break;
     case 11:
-      lib_puts("external interruption!\n");
+      /* external interruption */
       external_handler();
       break;
     default:
@@ -65,6 +65,9 @@ reg_t trap_handler(reg_t epc, reg_t cause)
   {
     switch (cause_code)
     {
+    case 2:
+      lib_puts("Illegal instruction!\n");
+      break;
     case 5:
       lib_puts("Fault load!\n");
       break;

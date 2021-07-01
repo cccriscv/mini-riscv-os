@@ -25,6 +25,8 @@ OBJDUMP = riscv64-unknown-elf-objdump
 
 all: clean os.elf hdd.dsk qemu
 
+test: clean os.elf qemu
+
 os.elf: $(OBJ)
 	$(CC) $(CFLAGS) -T os.ld -o os.elf $^
 
@@ -34,13 +36,13 @@ qemu: $(TARGET)
 	$(QEMU) $(QFLAGS) -kernel os.elf
 
 clean:
-	rm -f *.elf *.img *.dsk
+	rm -f *.elf *.img
 
 hdd.dsk:
 	dd if=/dev/urandom of=hdd.dsk bs=1M count=32
 
 .PHONY : debug
-debug: all
+debug: clean os.elf
 	@echo "Press Ctrl-C and then input 'quit' to exit GDB and QEMU"
 	@echo "-------------------------------------------------------"
 	@${QEMU} ${QFLAGS} -kernel os.elf -s -S &

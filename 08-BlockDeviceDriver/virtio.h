@@ -31,6 +31,12 @@
 #define VIRTIO_MMIO_INTERRUPT_STATUS 0x060 // read-only
 #define VIRTIO_MMIO_INTERRUPT_ACK 0x064    // write-only
 #define VIRTIO_MMIO_STATUS 0x070           // read/write
+#define VIRTIO_MMIO_QueueDescLow 0x080
+#define VIRTIO_MMIO_QueueDescHigh 0x084
+#define VIRTIO_MMIO_QueueAvailLow 0x090
+#define VIRTIO_MMIO_QueueAvailHigh 0x094
+#define VIRTIO_MMIO_QueueUsedLow 0x0a0
+#define VIRTIO_MMIO_QueueUsedHigh 0x0a4
 
 // status register bits, from qemu virtio_config.h
 #define VIRTIO_CONFIG_S_ACKNOWLEDGE 1
@@ -59,14 +65,14 @@ typedef struct virtq_desc
    * flags: 用於控制 descriptor 。
    * next: 告訴 Device 下一個描述符的 Index 。如果指定了 VIRTQ_DESC_F_NEXT， Device 僅讀取該字段。否則無效。
    */
-  uint32 addr;
+  uint64 addr;
   uint32 len;
   uint16 flags;
   uint16 next;
-} virtq_desc_t;
-#define VRING_DESC_F_NEXT 1  // chained with another descriptor
-#define VRING_DESC_F_WRITE 2 // device writes (vs read)
-
+} __attribute__((packed)) virtq_desc_t;
+#define VRING_DESC_F_NEXT 1     // chained with another descriptor
+#define VRING_DESC_F_WRITE 2    // device writes (vs read)
+#define VRING_DESC_F_INDIRECT 4 // buffer contains a list of buffer descriptors
 /*
  * 用來存放 descriptor 的索引，當 Device 收到通知時，它會檢查 AvailableRing 確認需要讀取哪些 Descriptor 。
  * 注意: Descriptor 和 AvailableRing 都存儲在 RAM 中。
@@ -76,8 +82,7 @@ typedef struct virtq_avail
   uint16 flags;     // always zero
   uint16 idx;       // driver will write ring[idx] next
   uint16 ring[NUM]; // descriptor numbers of chain heads
-  uint16 unused;
-} virtq_avail_t;
+} __attribute__((packed)) virtq_avail_t;
 
 /*
  * 當內部的 Index 與 UsedRing 的 Index 相等，代表所有資料都已經被讀取，這個 Device 是唯一需要被寫進 Index 的。
@@ -87,7 +92,7 @@ typedef struct virtq_used_elem
 {
   uint32 id; // index of start of completed descriptor chain
   uint32 len;
-} virtq_used_elem_t;
+} __attribute__((packed)) virtq_used_elem_t;
 
 /*
  * Device 可以使用 UsedRing 向 OS 發送訊息。
@@ -100,7 +105,7 @@ typedef struct virtq_used
   uint16 flags; // always zero
   uint16 idx;   // device increments when it adds a ring[] entry
   struct virtq_used_elem ring[NUM];
-} virtq_used_t;
+} __attribute__((packed)) virtq_used_t;
 
 // these are specific to virtio block devices, e.g. disks,
 // described in Section 5.2 of the spec.
@@ -115,5 +120,5 @@ typedef struct virtio_blk_req
 {
   uint32 type;     // VIRTIO_BLK_T_IN or ..._OUT
   uint32 reserved; // 將 Header 擴充到 16-byte ，並將 64-bit sector 移到正確的位置。
-  uint32 sector;
-} virtio_blk_req_t;
+  uint64 sector;
+} __attribute__((packed)) virtio_blk_req_t;

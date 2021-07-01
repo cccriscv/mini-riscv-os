@@ -23,6 +23,11 @@ void plic_init()
   /* Enable UART0 and VIRTIO */
   for (size_t i = VIRTIO_IRQ; i <= UART0_IRQ; i++)
   {
+    if (i == 9)
+    {
+      continue;
+    }
+
     *(uint32_t *)PLIC_MENABLE(hart) |= (1 << i);
   }
 

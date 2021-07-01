@@ -24,8 +24,6 @@ void os_start()
 	plic_init();
 	virtio_disk_init();
 	timer_init(); // start timer interrupt ...
-	virtio_tester(1);
-	virtio_tester(0);
 }
 
 int os_main(void)

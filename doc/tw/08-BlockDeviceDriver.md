@@ -250,3 +250,4 @@ void virtio_disk_isr()
 
 - [xv6-riscv](https://github.com/mit-pdos/xv6-riscv)
 - [Lecture: Virtual I/O Protocol Operating Systems Stephen Marz](https://web.eecs.utk.edu/~smarz1/courses/cosc361/notes/virtio/)
+- [Implementing a virtio-blk driver in my own operating system](https://brennan.io/2020/03/22/sos-block-device/)

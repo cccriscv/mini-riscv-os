@@ -53,9 +53,24 @@ void user_task3(void)
 	}
 }
 
+void disk_write()
+{
+	w_mie(r_mie() & ~(1 << 7));
+	virtio_tester(1);
+	w_mie(r_mie() | MIE_MTIE);
+}
+void disk_read()
+{
+	w_mie(r_mie() & ~(1 << 7));
+	virtio_tester(0);
+	w_mie(r_mie() | MIE_MTIE);
+}
+
 void user_init()
 {
 	// lock_init(&lock);
+	// task_create(&disk_write);
+	task_create(&disk_read);
 	task_create(&user_task0);
 	task_create(&user_task1);
 	// task_create(&user_task2);
