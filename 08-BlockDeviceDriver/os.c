@@ -15,6 +15,11 @@ void os_kernel()
 	task_os();
 }
 
+void disk_read()
+{
+	virtio_tester(0);
+}
+
 void os_start()
 {
 	uart_init();
@@ -29,6 +34,7 @@ void os_start()
 int os_main(void)
 {
 	os_start();
+	disk_read();
 	int current_task = 0;
 	while (1)
 	{

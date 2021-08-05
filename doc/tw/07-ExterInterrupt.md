@@ -24,7 +24,7 @@ PIC (Programmable Interrupt Controller) 是一個特殊用途的電路，可以�
 
 若我們要讓運行在 RISC-V 中的系統程式支援中斷處理，也需要設定 MIE Register 的域值:
 
-```c=
+```cpp
 // Machine-mode Interrupt Enable
 #define MIE_MEIE (1 << 11) // external
 #define MIE_MTIE (1 << 7)  // timer
@@ -45,7 +45,7 @@ PLIC (Platform-Level Interrupt Controller) 就是為了 RISC-V 平台所打造�
 
 以 Qemu 中的 RISC-V 虛擬機器 - Virt 為例，它的[原始碼](https://github.com/qemu/qemu/blob/master/include/hw/riscv/virt.h)就定義了不同中斷的 IRQ :
 
-```c=
+```cpp
 enum {
     UART0_IRQ = 10,
     RTC_IRQ = 11,
@@ -64,7 +64,7 @@ enum {
 PLIC 是採取 Memory Map 的機制，它會將一些重要的資訊映射到 Main Memory 當中，如此一來，我們就可以透過存取記憶體的方式做到與 PLIC 的溝通。
 我們可以繼續看到 [Virt 的原始碼](https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c) ，它定義了 PLIC 的虛擬位置:
 
-```c=
+```cpp
 static const MemMapEntry virt_memmap[] = {
     [VIRT_DEBUG] =       {        0x0,         0x100 },
     [VIRT_MROM] =        {     0x1000,        0xf000 },
@@ -93,7 +93,7 @@ static const MemMapEntry virt_memmap[] = {
 
 首先，看到 `plic_init()` ，該檔案定義在 `plic.c`:
 
-```c=
+```cpp
 void plic_init()
 {
   int hart = r_tp();
@@ -124,7 +124,7 @@ void plic_init()
 - 設定 threshold
   小於或是等於這個閥值的 IRQ 會被 PLIC 無視，如果我們將範例改成:
 
-```c=
+```cpp
 *(uint32_t *)PLIC_MTHRESHOLD(hart) = 10;
 ```
 
@@ -153,7 +153,7 @@ void plic_init()
 
 先前 `trap_handler()` 只有支援時間中斷的處理，這次我們則是要讓它支援外部中斷的處理:
 
-```c=
+```cpp
 /* In trap.c */
 void external_handler()
 {
@@ -176,7 +176,7 @@ void external_handler()
 
 因為本次的目標是讓作業系統能夠處理 UART IRQ ，所以透過上面的程式碼不難發現我們只對 UART 做處理:
 
-```c=
+```cpp
 /* In lib.c */
 void lib_isr(void)
 {
@@ -200,7 +200,7 @@ void lib_isr(void)
 
 > 與 UART 有關的暫存器都定義在 `riscv.h` 之中，這次為了支援 `lib_getc()` 添加了一些暫存器位址，大致內容如下:
 >
-> ```c=
+> ```cpp
 > #define UART 0x10000000L
 > #define UART_THR (volatile uint8_t *)(UART + 0x00) // THR:transmitter holding register
 > #define UART_RHR (volatile uint8_t *)(UART + 0x00) // RHR:Receive holding register

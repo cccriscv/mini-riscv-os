@@ -14,9 +14,9 @@ void external_handler()
   {
     lib_isr();
   }
-  else if (0 < irq < 9)
+  else if (irq == VIRTIO_IRQ)
   {
-    lib_puts("Virio IRQ\n");
+    lib_puts("Virtio IRQ\n");
     virtio_disk_isr();
   }
   else if (irq)

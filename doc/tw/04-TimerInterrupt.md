@@ -1,10 +1,8 @@
 # 04-TimerInterrupt -- RISC-V 的時間中斷
 
-[os.c]:https://github.com/ccc-c/mini-riscv-os/blob/master/04-TimerInterrupt/os.c
-
-[timer.c]:https://github.com/ccc-c/mini-riscv-os/blob/master/04-TimerInterrupt/timer.c
-
-[sys.s]:https://github.com/ccc-c/mini-riscv-os/blob/master/04-TimerInterrupt/sys.s
+[os.c]: https://github.com/ccc-c/mini-riscv-os/blob/master/04-TimerInterrupt/os.c
+[timer.c]: https://github.com/ccc-c/mini-riscv-os/blob/master/04-TimerInterrupt/timer.c
+[sys.s]: https://github.com/ccc-c/mini-riscv-os/blob/master/04-TimerInterrupt/sys.s
 
 專案 -- https://github.com/ccc-c/mini-riscv-os/tree/master/04-TimerInterrupt
 
@@ -13,14 +11,19 @@
 本章將為第五章的《搶先式多工系統》鋪路，介紹如何在 RISC-V 處理器中使用《時間中斷機制》。有了時間中斷之後，我們就可以定時強制取回控制權，而不用害怕惡霸行程佔據系統，不歸還控制權給作業系統了。
 
 ## 先備知識
+
 在學習系統如何實現時間中斷機制之前，我們必須先了解幾件事情:
+
 - 如何產生 Timer interrupt
 - 什麼是中斷向量表?
 - CSR 暫存器
+
 ### 如何產生 Timer interrupt
+
 RISC-V 架構有規定，系統平台必須要有一個計時器。並且，該計時器必須具備兩個 64-bit 的暫存器 mtime 以及 mtimecmp ，前者用於紀錄當前計數器的值，後者則是 mtime 的比較值，當 value of mtime > value of mtimecmp 時便會產生中斷。
 而這兩個寄存器也被定義在 [riscv.h](https://github.com/cccriscv/mini-riscv-os/blob/master/04-TimerInterrupt/riscv.h) 中:
-```c=
+
+```cpp
 // ================== Timer Interrput ====================
 
 #define NCPU 8             // maximum number of CPUs
@@ -28,73 +31,87 @@ RISC-V 架構有規定，系統平台必須要有一個計時器。並且，該�
 #define CLINT_MTIMECMP(hartid) (CLINT + 0x4000 + 4*(hartid))
 #define CLINT_MTIME (CLINT + 0xBFF8) // cycles since boot.
 ```
+
 在了解如何產生 Timer interrupt 後，等等在下面的介紹我們就會看到有一段程式碼描述每個中斷觸發的時間間隔 (Interval)。
 不只如此，我們還需要在系統初始化的時候開啟 Timer interrupt ，具體的作法是: 開啟將 mie register 負責管理 Timer interrupt 的域寫成 1 。
 
 ### 什麼是中斷向量表
+
 中斷向量表是一個由系統程式維護的 Table ，我們可以將對應的 Interrupt_Handler 放進中斷向量表，這樣一來，當時間中斷發生時，系統就會 Trap 進 Interrupt_Handler ，等到中斷與異常的處理結束後再跳回原本的指令位址繼續執行。
+
 > 補充:
 > 當異常或是中斷發生時，處理器會停止手邊的工作，再將 Program counter 的位址指向 mtvec 所指的位址並開始執行。這樣的行為就好像是主動跳入陷阱一樣，因此，在 RISC-V 的架構中將這個動作定義為 Trap ，在 xv6 (risc-v) 作業系統中，我們也可以在 Kernel 端的原始碼找到一系列處理 Interrupt 的操作 (大多定義在 Trap.c 之中)。
 
 ### CSR
+
 RISC-V 架構定義了許多暫存器，部分暫存器被定義為控制和狀態暫存器，也就是標題所指出的 CSR (Control and status registers) ，它被用於配置或是紀錄處理器的運作狀況。
- - CSR
-     - mtvec
-     當進入異常時， PC (Program counter) 會進入 mtvec 所指向的地址並繼續運行。
-     - mcause
-     紀載異常的原因
-     - mtval
-     紀載異常訊息
-     - mepc
-     進入異常前 PC 所指向的地址。若異常處理完畢， Program counter 可以讀取該位址並繼續執行。
-     - mstatus
-進入異常時，硬體會更新 mstatus 寄存器的某些域值。
-     - mie
-     決定中斷是否被處理。
-     - mip
-     反映不同類型中斷的等待狀態。
- - Memory Address Mapped
-     - mtime
-     紀錄計時器的值。
-     - mtimecmp
-     儲存計時器的比較值。
-     - msip
-     產生或結束軟體中斷。
-     - PLIC
-     
+
+- CSR - mtvec
+  當進入異常時， PC (Program counter) 會進入 mtvec 所指向的地址並繼續運行。 - mcause
+  紀載異常的原因 - mtval
+  紀載異常訊息 - mepc
+  進入異常前 PC 所指向的地址。若異常處理完畢， Program counter 可以讀取該位址並繼續執行。 - mstatus
+  進入異常時，硬體會更新 mstatus 寄存器的某些域值。 - mie
+  決定中斷是否被處理。 - mip
+  反映不同類型中斷的等待狀態。
+- Memory Address Mapped
+  - mtime
+    紀錄計時器的值。
+  - mtimecmp
+    儲存計時器的比較值。
+  - msip
+    產生或結束軟體中斷。
+  - PLIC
+
 此外， RISC-V 定義了一系列的指令讓開發者能夠對 CSR 暫存器進行操作:
+
 - csrs
-把 CSR 中指定的 bit 設為 1。
+  把 CSR 中指定的 bit 設為 1。
+
 ```assembly=
 csrsi mstatus, (1 << 2)
 ```
+
 上面的指令會將 mstatus 從 LSB 數起的第三個位置設成 1 。
+
 - csrc
-把 CSR 中指定的 bit 設為 0。
+  把 CSR 中指定的 bit 設為 0。
+
 ```assembly=
 csrsi mstatus, (1 << 2)
 ```
+
 上面的指令會將 mstatus 從 LSB 數起的第三個位置設成 0 。
+
 - csrr[c|s]
-將 CSR 的值讀入通用暫存器。
+  將 CSR 的值讀入通用暫存器。
+
 ```assembly=
 csrr to, mscratch
 ```
+
 - csrw
-將通用暫存器的值寫入 CSR 。
+  將通用暫存器的值寫入 CSR 。
+
 ```assembly=
 csrw	mepc, a0
 ```
+
 - csrrw[i]
-將 csr 的值寫入 rd 後，且將 rs1 的值寫入 csr 。
+  將 csr 的值寫入 rd 後，且將 rs1 的值寫入 csr 。
+
 ```assembly=
 csrrw rd, csr, rs1/imm
 ```
+
 換個角度思考:
+
 ```assembly=
 csrrw t6, mscratch, t6
 ```
+
 上面的操作可以讓 t6 與 mscratch 的值互換。
+
 ## 系統執行
 
 首先讓我們展示一下系統的執行狀況，當你用 make clean, make 等指令建置好
@@ -291,7 +308,7 @@ void timer_init()
 }
 ```
 
-另外還得理解 RISC-V 的 virt 這台 QEMU 虛擬機器中的記憶體映射區域，像是CLINT_MTIME, CLINT_MTIMECMP 等等。
+另外還得理解 RISC-V 的 virt 這台 QEMU 虛擬機器中的記憶體映射區域，像是 CLINT_MTIME, CLINT_MTIMECMP 等等。
 
 RISC-V 的時間中斷機制是比較 CLINT_MTIME 與 CLINT_MTIMECMP 兩個數值，當 CLINT_MTIME 超過 CLINT_MTIMECMP 時就發生中斷。
 
@@ -328,7 +345,7 @@ sys_timer:
         csrr a7, mepc     # a7 = mepc, for sys_kernel jump back to interrupted point
         la a1, sys_kernel # mepc = sys_kernel
         csrw mepc, a1     # mret : will jump to sys_kernel
- 
+
         lw a3, 8(a0)
         lw a2, 4(a0)
         lw a1, 0(a0)
@@ -352,6 +369,3 @@ sys_timer:
 這樣下一次 CLINT_MTIMECMP 時間到的時候，CLINT_MTIME 就會大於 CLINT_MTIMECMP，於是中斷就再次發生了。
 
 以上就是 RISC-V 處理器在 virt 這個虛擬機器上的中斷機制原理！
-
-
-

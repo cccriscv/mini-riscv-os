@@ -1,7 +1,7 @@
 #include "virtio.h"
 #include "os.h"
 
-#define R(addr) ((volatile uint32_t *)(VIRTIO_MMIO_BASE + (addr)))
+#define R(addr) ((volatile uint32 *)(VIRTIO_MMIO_BASE + (addr)))
 #define BSIZE 512 // block size
 #define PGSHIFT 12
 
@@ -57,31 +57,14 @@ void virtio_tester(int write)
     }
   }
 
-  if (write)
+  lib_puts("block read...\n");
+  virtio_disk_rw(&b[0], write);
+  size_t i = 0;
+  for (; i < 10; i++)
   {
-    for (size_t j = 0; j < BSIZE; j++)
-    {
-      b[0].data[j] = (j + 1) % 10;
-    }
-    lib_puts("block write...\n");
-    virtio_disk_rw(&b[0], write);
-    lib_puts("done...!\n");
+    lib_printf("%x \n", b[0].data[i]);
   }
-  else
-  {
-    for (size_t j = 0; j < BSIZE; j++)
-    {
-      b[0].data[j] = 0;
-    }
-    lib_puts("block read...\n");
-    virtio_disk_rw(&b[0], write);
-    size_t i = 0;
-    for (; i < 10; i++)
-    {
-      lib_printf("%x ", b[0].data[i]);
-    }
-    lib_puts("\n");
-  }
+  lib_puts("\n");
 }
 
 void virtio_disk_init()
@@ -134,7 +117,7 @@ void virtio_disk_init()
     panic("virtio disk max queue too short\n");
   *R(VIRTIO_MMIO_QUEUE_NUM) = NUM;
   memset(disk.pages, 0, sizeof(disk.pages));
-  *R(VIRTIO_MMIO_QUEUE_PFN) = ((uint64)disk.pages) / PGSIZE;
+  *R(VIRTIO_MMIO_QUEUE_PFN) = ((uint32)disk.pages) / PGSIZE;
   *R(VIRTIO_MMIO_QUEUE_ALIGN) = PGSIZE;
   *R(VIRTIO_MMIO_QUEUE_READY) = 1;
   // desc = pages -- num * virtq_desc
@@ -143,9 +126,11 @@ void virtio_disk_init()
   disk.desc = (struct virtq_desc *)disk.pages;
   disk.avail = (struct virtq_avail *)(disk.pages + NUM * sizeof(virtq_desc_t));
   disk.used = (struct virtq_used *)(disk.pages + PGSIZE);
+
   *R(VIRTIO_MMIO_QueueDescLow) = disk.desc;
   *R(VIRTIO_MMIO_QueueAvailLow) = disk.avail;
   *R(VIRTIO_MMIO_QueueUsedLow) = disk.used;
+
   // all NUM descriptors start out unused.
   for (int i = 0; i < NUM; i++)
     disk.free[i] = 1;
@@ -218,7 +203,9 @@ alloc3_desc(int *idx)
 
 void virtio_disk_rw(struct blk *b, int write)
 {
-  uint32 sector = b->blockno * (BSIZE / 512);
+  uint64 sector = b->blockno * (BSIZE / 512);
+
+  lock_acquire(&disk.vdisk_lock);
 
   // allocate the three descriptors.
   int idx[3];
@@ -233,7 +220,7 @@ void virtio_disk_rw(struct blk *b, int write)
   // format the three descriptors.
   // qemu's virtio-blk.c reads them.
 
-  struct virtio_blk_req *buf0 = &disk.ops[idx[0]];
+  virtio_blk_req_t *buf0 = &disk.ops[idx[0]];
 
   if (write)
     buf0->type = VIRTIO_BLK_T_OUT; // write the disk
@@ -242,12 +229,12 @@ void virtio_disk_rw(struct blk *b, int write)
   buf0->reserved = 0;             // The reserved portion is used to pad the header to 16 bytes and move the 32-bit sector field to the correct place.
   buf0->sector = sector;          // specify the sector that we wanna modified.
 
-  disk.desc[idx[0]].addr = (uint64)buf0;
+  disk.desc[idx[0]].addr = buf0;
   disk.desc[idx[0]].len = sizeof(struct virtio_blk_req);
   disk.desc[idx[0]].flags = VRING_DESC_F_NEXT;
   disk.desc[idx[0]].next = idx[1];
 
-  disk.desc[idx[1]].addr = (uint64)b->data;
+  disk.desc[idx[1]].addr = ((uint32)b->data) & 0xffffffff;
   disk.desc[idx[1]].len = BSIZE;
   if (write)
     disk.desc[idx[1]].flags = 0; // device reads b->data
@@ -256,8 +243,8 @@ void virtio_disk_rw(struct blk *b, int write)
   disk.desc[idx[1]].flags |= VRING_DESC_F_NEXT;
   disk.desc[idx[1]].next = idx[2];
 
-  disk.info[idx[0]].status = 0xff; // device writes 0 on success
-  disk.desc[idx[2]].addr = (uint64)&disk.info[idx[0]].status;
+  disk.info[idx[0]].status = 0;
+  disk.desc[idx[2]].addr = (uint32)&disk.info[idx[0]].status;
   disk.desc[idx[2]].len = 1;
   disk.desc[idx[2]].flags = VRING_DESC_F_WRITE; // device writes the status
   disk.desc[idx[2]].next = 0;
@@ -277,18 +264,19 @@ void virtio_disk_rw(struct blk *b, int write)
   disk.avail->idx += 1; // not % NUM ...
 
   *R(VIRTIO_MMIO_QUEUE_NOTIFY) = 0; // The device starts immediately when we write 0 to queue_notify.
-
   while (b->disk == 1)
   {
   }
 
   disk.info[idx[0]].b = 0;
   free_chain(idx[0]);
+
+  lock_free(&disk.vdisk_lock);
 }
 
 void virtio_disk_isr()
 {
-  lock_acquire(&disk.vdisk_lock);
+  //lock_acquire(&disk.vdisk_lock);
 
   // the device won't raise another interrupt until we tell it
   // we've seen this interrupt, which the following line does.
@@ -316,5 +304,5 @@ void virtio_disk_isr()
     disk.used_idx += 1;
   }
 
-  lock_free(&disk.vdisk_lock);
+  //lock_free(&disk.vdisk_lock);
 }

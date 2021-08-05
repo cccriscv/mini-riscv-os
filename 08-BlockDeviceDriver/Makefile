@@ -30,7 +30,7 @@ test: clean os.elf qemu
 os.elf: $(OBJ)
 	$(CC) $(CFLAGS) -T os.ld -o os.elf $^
 
-qemu: $(TARGET)
+qemu: $(TARGET) hdd.dsk
 	@qemu-system-riscv32 -M ? | grep virt >/dev/null || exit
 	@echo "Press Ctrl-A and then X to exit QEMU"
 	$(QEMU) $(QFLAGS) -kernel os.elf
@@ -42,7 +42,7 @@ hdd.dsk:
 	dd if=/dev/urandom of=hdd.dsk bs=1M count=32
 
 .PHONY : debug
-debug: clean os.elf
+debug: clean os.elf hdd.dsk
 	@echo "Press Ctrl-C and then input 'quit' to exit GDB and QEMU"
 	@echo "-------------------------------------------------------"
 	@${QEMU} ${QFLAGS} -kernel os.elf -s -S &

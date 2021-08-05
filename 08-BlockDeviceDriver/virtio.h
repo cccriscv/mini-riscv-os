@@ -8,6 +8,7 @@
 /* OFFSET */
 #define VIRTIO_MMIO_MAGIC_VALUE 0x000 // Magic value must be 0x74726976
 #define VIRTIO_MMIO_VERSION 0x004     // Version: 1 (Legacy)
+
 /*
  * Device ID:
  * 1 (Network Device)
@@ -16,6 +17,7 @@
  * 16 (GPU Device)
  * 18 (Input Device)
  */
+
 #define VIRTIO_MMIO_DEVICE_ID 0x008
 #define VIRTIO_MMIO_VENDOR_ID 0x00c // 0x554d4551
 #define VIRTIO_MMIO_DEVICE_FEATURES 0x010
@@ -69,20 +71,23 @@ typedef struct virtq_desc
   uint32 len;
   uint16 flags;
   uint16 next;
-} __attribute__((packed)) virtq_desc_t;
+} virtq_desc_t;
+
 #define VRING_DESC_F_NEXT 1     // chained with another descriptor
 #define VRING_DESC_F_WRITE 2    // device writes (vs read)
 #define VRING_DESC_F_INDIRECT 4 // buffer contains a list of buffer descriptors
+
 /*
  * 用來存放 descriptor 的索引，當 Device 收到通知時，它會檢查 AvailableRing 確認需要讀取哪些 Descriptor 。
  * 注意: Descriptor 和 AvailableRing 都存儲在 RAM 中。
  */
+
 typedef struct virtq_avail
 {
   uint16 flags;     // always zero
   uint16 idx;       // driver will write ring[idx] next
   uint16 ring[NUM]; // descriptor numbers of chain heads
-} __attribute__((packed)) virtq_avail_t;
+} virtq_avail_t;
 
 /*
  * 當內部的 Index 與 UsedRing 的 Index 相等，代表所有資料都已經被讀取，這個 Device 是唯一需要被寫進 Index 的。
@@ -92,7 +97,7 @@ typedef struct virtq_used_elem
 {
   uint32 id; // index of start of completed descriptor chain
   uint32 len;
-} __attribute__((packed)) virtq_used_elem_t;
+} virtq_used_elem_t;
 
 /*
  * Device 可以使用 UsedRing 向 OS 發送訊息。
@@ -105,7 +110,7 @@ typedef struct virtq_used
   uint16 flags; // always zero
   uint16 idx;   // device increments when it adds a ring[] entry
   struct virtq_used_elem ring[NUM];
-} __attribute__((packed)) virtq_used_t;
+} virtq_used_t;
 
 // these are specific to virtio block devices, e.g. disks,
 // described in Section 5.2 of the spec.
@@ -121,4 +126,4 @@ typedef struct virtio_blk_req
   uint32 type;     // VIRTIO_BLK_T_IN or ..._OUT
   uint32 reserved; // 將 Header 擴充到 16-byte ，並將 64-bit sector 移到正確的位置。
   uint64 sector;
-} __attribute__((packed)) virtio_blk_req_t;
+} virtio_blk_req_t;
