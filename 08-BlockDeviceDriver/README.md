@@ -3,42 +3,34 @@
 ## Build & Run
 
 ```sh
-IAN@DESKTOP-9AEMEPL MINGW64 ~/Desktop/mini-riscv-os/07-ExterInterrupt (feat/getchar)
-$ make
-riscv64-unknown-elf-gcc -nostdlib -fno-builtin -mcmodel=medany -march=rv32ima -mabi=ilp32 -g -Wall -T os.ld -o os.elf start.s sys.s lib.c timer.c task.c os.c user.c trap.c lock.c plic.c
-
-IAN@DESKTOP-9AEMEPL MINGW64 ~/Desktop/mini-riscv-os/07-ExterInterrupt (feat/getchar)
-$ make qemu
+IAN@DESKTOP-9AEMEPL MINGW64 ~/Desktop/mini-riscv-os/08-BlockDeviceDriver (feat/block_driver)
+$ make all
+rm -f *.elf *.img
+riscv64-unknown-elf-gcc -nostdlib -fno-builtin -mcmodel=medany -march=rv32ima -mabi=ilp32 -g -Wall -w -T os.ld -o os.elf start.s sys.s lib.c timer.c task.c os.c user.c trap.c lock.c plic.c virtio.c string.c
 Press Ctrl-A and then X to exit QEMU
-qemu-system-riscv32 -nographic -smp 4 -machine virt -bios none -kernel os.elf
+qemu-system-riscv32 -nographic -smp 4 -machine virt -bios none -drive if=none,format=raw,file=hdd.dsk,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -kernel os.elf
 OS start
+Disk init work is success!
+buffer init...
+block read...
+Virtio IRQ
+000000fd
+000000af
+000000f8
+000000ab
+00000088
+00000042
+000000cc
+00000017
+00000022
+0000008e
+
 OS: Activate next task
 Task0: Created!
 Task0: Running...
 Task0: Running...
 Task0: Running...
 Task0: Running...
-Task0: Running...
-external interruption!
-j
-Task0: Running...
-Task0: Running...
-external interruption!
-k
-Task0: Running...
-Task0: Running...
-Task0: Running...
-external interruption!
-j
-Task0: Running...
-external interruption!
-k
-external interruption!
-j
-Task0: Running...
-timer interruption!
-timer_handler: 1
-OS: Back to OS
 QEMU: Terminated
 ```
 
