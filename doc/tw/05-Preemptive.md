@@ -175,7 +175,7 @@ int os_main(void)
 
 在 05-Preemptive 的中斷機制中，我們修改了中斷向量表:
 
-```c=
+```cpp
 .globl trap_vector
 # the trap vector base address must always be aligned on a 4-byte boundary
 .align 4
@@ -200,7 +200,7 @@ trap_vector:
 
 當中斷發生時，中斷向量表 `trap_vector()` 會呼叫 `trap_handler()` :
 
-```c=
+```cpp
 reg_t trap_handler(reg_t epc, reg_t cause)
 {
   reg_t return_pc = epc;
@@ -306,7 +306,7 @@ void timer_handler()
 
 看到 [timer.c] 裏的 `timer_handler()`，它會將 `MTIMECMP` 做 reset 的動作。
 
-```c=
+```cpp
 /* In trap_handler() */
 // ...
 case 7:
@@ -335,7 +335,7 @@ csrr	a0, mepc # a0 => arg1 (return_pc) of trap_handler()
 
 最後，記得在 Kernel 開機時導入 trap 以及 timer 的初始化動作:
 
-```c=
+```cpp
 void os_start()
 {
 	lib_puts("OS start\n");
