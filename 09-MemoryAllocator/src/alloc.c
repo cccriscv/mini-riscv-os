@@ -1,3 +1,7 @@
+/*  This Code derived from RVOS
+ *  -- https://github.com/plctlab/riscv-operating-system-mooc
+ */
+
 #include "os.h"
 
 extern uint32_t TEXT_START;
@@ -21,11 +25,13 @@ static uint32_t _alloc_start = 0;
 static uint32_t _alloc_end = 0;
 static uint32_t _num_pages = 0;
 
-#define PAGE_SIZE 4096
-#define PAGE_ORDER 12
+#define PAGE_SIZE 256
+#define PAGE_ORDER 8
 
 #define PAGE_TAKEN (uint8_t)(1 << 0)
 #define PAGE_LAST (uint8_t)(1 << 1)
+#define abs(x) (x > 0) ? (x) : (-x)
+#define pageNum(x) ((abs(x)) / ((PAGE_SIZE) + 1)) + 1
 
 /*
  * Page Descriptor 
@@ -35,6 +41,7 @@ static uint32_t _num_pages = 0;
  * - 10: This means this page hasn't been allocated and is the last page of the memory block allocated
  * - 11: This means this page was allocated and is the last page of the memory block allocated
  */
+
 struct Page
 {
   uint8_t flags;
@@ -113,9 +120,9 @@ void page_init()
  * Allocate a memory block which is composed of contiguous physical pages
  * - npages: the number of PAGE_SIZE pages to allocate
  */
-void *page_alloc(int npages)
+void *malloc(size_t size)
 {
-  /* Note we are searching the page descriptor bitmaps. */
+  int npages = pageNum(size);
   int found = 0;
   struct Page *page_i = (struct Page *)HEAP_START;
   for (int i = 0; i < (_num_pages - npages); i++)
@@ -123,10 +130,12 @@ void *page_alloc(int npages)
     if (_is_free(page_i))
     {
       found = 1;
+
       /* 
 			 * meet a free page, continue to check if following
 			 * (npages - 1) pages are also unallocated.
 			 */
+
       struct Page *page_j = page_i;
       for (int j = i; j < (i + npages); j++)
       {
@@ -164,7 +173,7 @@ void *page_alloc(int npages)
  * Free the memory block
  * - p: start address of the memory block
  */
-void page_free(void *p)
+void free(void *p)
 {
   /*
 	 * Assert (TBD) if p is invalid
@@ -195,14 +204,16 @@ void page_free(void *p)
 
 void page_test()
 {
-  void *p = page_alloc(2);
+  void *p = malloc(1024);
   lib_printf("p = 0x%x\n", p);
-  page_free(p);
 
-  void *p2 = page_alloc(7);
+  void *p2 = malloc(512);
   lib_printf("p2 = 0x%x\n", p2);
-  page_free(p2);
 
-  void *p3 = page_alloc(4);
+  void *p3 = malloc(sizeof(int));
   lib_printf("p3 = 0x%x\n", p3);
+
+  free(p);
+  free(p2);
+  free(p3);
 }

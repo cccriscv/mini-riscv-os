@@ -36,7 +36,7 @@ extern void lock_free(lock_t *lock);
 
 // memory allocator
 
-extern void *page_alloc(int npages);
-extern void page_free(void *p);
+extern void *malloc(size_t size);
+extern void free(void *p);
 
 #endif

@@ -38,6 +38,7 @@ int os_main(void)
 {
 	os_start();
 	disk_read();
+	page_test();
 	int current_task = 0;
 	while (1)
 	{
