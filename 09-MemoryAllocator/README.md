@@ -9,12 +9,12 @@ rm -f *.elf *.img
 riscv64-unknown-elf-gcc -I./include -nostdlib -fno-builtin -mcmodel=medany -march=rv32ima -mabi=ilp32 -g -Wall -w -T os.ld -o os.elf src/start.s src/sys.s src/mem.s src/lib.c src/timer.c src/task.c src/os.c src/user.c src/trap.c src/lock.c src/plic.c src/virtio.c src/string.c src/alloc.c
 Press Ctrl-A and then X to exit QEMU
 qemu-system-riscv32 -nographic -smp 4 -machine virt -bios none -drive if=none,format=raw,file=hdd.dsk,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -kernel os.elf
-HEAP_START = 8001100c, HEAP_SIZE = 07feeff4, num of pages = 524007
-TEXT:   0x80000000 -> 0x8000ac8c
-RODATA: 0x8000ac8c -> 0x8000b0bb
+HEAP_START = 8001100c, HEAP_SIZE = 07feeff4, num of pages = 521967
+TEXT:   0x80000000 -> 0x8000ac78
+RODATA: 0x8000ac78 -> 0x8000b09f
 DATA:   0x8000c000 -> 0x8000c004
 BSS:    0x8000d000 -> 0x8001100c
-HEAP:   0x80011900 -> 0x88000000
+HEAP:   0x80091100 -> 0x88000000
 OS start
 Disk init work is success!
 buffer init...
@@ -31,11 +31,18 @@ Virtio IRQ
 00000022
 0000008e
 
-p = 0x80011f00
-p2 = 0x80011b00
-p3 = 0x80011900
+p = 0x80091700
+p2 = 0x80091300
+p3 = 0x80091100
 OS: Activate next task
 Task0: Created!
+Task0: Running...
+Task0: Running...
+Task0: Running...
+Task0: Running...
+Task0: Running...
+Task0: Running...
+Task0: Running...
 Task0: Running...
 Task0: Running...
 Task0: Running...

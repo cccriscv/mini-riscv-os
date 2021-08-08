@@ -30,15 +30,13 @@ static uint32_t _num_pages = 0;
 
 #define PAGE_TAKEN (uint8_t)(1 << 0)
 #define PAGE_LAST (uint8_t)(1 << 1)
-#define abs(x) (x > 0) ? (x) : (-x)
-#define pageNum(x) ((abs(x)) / ((PAGE_SIZE) + 1)) + 1
+#define pageNum(x) ((x) / ((PAGE_SIZE) + 1)) + 1
 
 /*
  * Page Descriptor 
  * flags:
  * - 00: This means this page hasn't been allocated
  * - 01: This means this page was allocated
- * - 10: This means this page hasn't been allocated and is the last page of the memory block allocated
  * - 11: This means this page was allocated and is the last page of the memory block allocated
  */
 
@@ -82,8 +80,9 @@ static inline int _is_last(struct Page *page)
 }
 
 /*
- * align the address to the border of page(4K)
+ * align the address to the border of page (256)
  */
+
 static inline uint32_t _align_page(uint32_t address)
 {
   uint32_t order = (1 << PAGE_ORDER) - 1;
@@ -92,11 +91,7 @@ static inline uint32_t _align_page(uint32_t address)
 
 void page_init()
 {
-  /* 
-	 * We reserved 8 Page (8 x 4096) to hold the Page structures.
-	 * It should be enough to manage at most 128 MB (8 x 4096 x 4096) 
-	 */
-  _num_pages = (HEAP_SIZE / PAGE_SIZE) - 8;
+  _num_pages = (HEAP_SIZE / PAGE_SIZE) - 2048;
   lib_printf("HEAP_START = %x, HEAP_SIZE = %x, num of pages = %d\n", HEAP_START, HEAP_SIZE, _num_pages);
 
   struct Page *page = (struct Page *)HEAP_START;
@@ -106,7 +101,7 @@ void page_init()
     page++;
   }
 
-  _alloc_start = _align_page(HEAP_START + 8 * PAGE_SIZE);
+  _alloc_start = _align_page(HEAP_START + 2048 * PAGE_SIZE);
   _alloc_end = _alloc_start + (PAGE_SIZE * _num_pages);
 
   lib_printf("TEXT:   0x%x -> 0x%x\n", TEXT_START, TEXT_END);
@@ -120,6 +115,7 @@ void page_init()
  * Allocate a memory block which is composed of contiguous physical pages
  * - npages: the number of PAGE_SIZE pages to allocate
  */
+
 void *malloc(size_t size)
 {
   int npages = pageNum(size);

@@ -41,6 +41,8 @@ And you should start your git-bash to build the project. (It works for me in vsc
   - Learing PLIC & external interruption
 - [08-BlockDeviceDriver](08-BlockDeviceDriver)
   - Learning VirtIO Protocol & Device driver implementation
+- [09-MemoryAllocator](09-MemoryAllocator)
+  - Understanding how to write the linker script & how heap works
 
 ## Building and Verification
 
