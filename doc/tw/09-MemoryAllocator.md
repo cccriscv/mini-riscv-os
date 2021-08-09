@@ -79,7 +79,7 @@ MEMORY
 
 本文中所提到的 Heap 與資料結構的 Heap 不同，這邊的 Heap 是指可供作業系統與 Process 分配的記憶體空間，我們都知道， Stack 會存放已經初始化的固定長度資料，比起 Stack ， Heap 有了更多彈性，我們想要使用多少空間就分配多少空間，並且在使用後可以進行記憶體回收避免浪費。
 
-```c=
+```cpp
 #include <stdlib.h>
 int *p = (int*) malloc(sizeof(int));
 // ...

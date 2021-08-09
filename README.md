@@ -2,6 +2,8 @@
 
 # mini-riscv-os
 
+<img src="./logo.png" width="300" />
+
 Build a minimal multi-tasking OS kernel for RISC-V from scratch
 
 Mini-riscv-os was inspired by [jserv](https://github.com/jserv)'s [mini-arm-os](https://github.com/jserv/mini-arm-os) project.
