@@ -32,19 +32,19 @@ And you should start your git-bash to build the project. (It works for me in vsc
 - [02-ContextSwitch](02-ContextSwitch)
   - Basic switch from OS to user task
 - [03-MultiTasking](03-MultiTasking)
-  - Two user tasks are interatively switching
+  - Two user tasks are interactively switching
 - [04-TimerInterrupt](04-TimerInterrupt)
   - Enable SysTick for future scheduler implementation
 - [05-Preemptive](05-Preemptive)
   - Basic preemptive scheduling
 - [06-Spinlock](06-Spinlock)
-  - Lock implementation for protec critical sections
+  - Lock implementation to protect critical sections
 - [07-ExterInterrupt](07-ExterInterrupt)
-  - Learing PLIC & external interruption
+  - Learning PLIC & external interruption
 - [08-BlockDeviceDriver](08-BlockDeviceDriver)
   - Learning VirtIO Protocol & Device driver implementation
 - [09-MemoryAllocator](09-MemoryAllocator)
-  - Understanding how to write the linker script & how heap works
+  - Understanding how to write the linker script & how the heap works
 
 ## Building and Verification
 
