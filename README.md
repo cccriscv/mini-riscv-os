@@ -45,7 +45,8 @@ And you should start your git-bash to build the project. (It works for me in vsc
   - Learning VirtIO Protocol & Device driver implementation
 - [09-MemoryAllocator](09-MemoryAllocator)
   - Understanding how to write the linker script & how the heap works
-
+- [10-SystemCall](10-SystemCall)
+  - Invoking a mini ecall from machine mode.
 ## Building and Verification
 
 - Changes the current working directory to the specified one and then
