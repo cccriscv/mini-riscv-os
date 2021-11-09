@@ -5,8 +5,7 @@
 #include "lib.h"
 #include "timer.h"
 
-extern void user_init();
-extern void os_kernel();
+extern void os_loop(void);
 extern int  os_main(void);
 
 #endif
