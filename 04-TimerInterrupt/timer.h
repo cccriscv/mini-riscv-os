@@ -5,7 +5,7 @@
 #include "sys.h"
 #include "lib.h"
 
-extern void timer_handler();
+extern reg_t timer_handler(reg_t epc, reg_t cause);
 extern void timer_init();
 
 #endif
