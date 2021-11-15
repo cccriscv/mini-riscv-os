@@ -4,10 +4,16 @@ extern void trap_vector();
 extern void virtio_disk_isr();
 extern void do_syscall(struct context *ctx);
 
+// a scratch area per CPU for machine-mode interrupt.
+reg_t trap_scratch[NCPU][32+1]; // R0-R31 + mepc
+
 void trap_init()
 {
-  // set the machine-mode trap handler.
-  w_mtvec((reg_t)trap_vector);
+  int id = r_mhartid();
+  reg_t *scratch = &trap_scratch[id][0];
+  w_mscratch((reg_t)scratch);  // set scratch area for this core
+  w_mtvec((reg_t)trap_vector); // set the machine-mode trap handler.
+  w_mie(r_mie() | MIE_MTIE);   // enable machine-mode timer interrupts.
 }
 
 void external_handler()
