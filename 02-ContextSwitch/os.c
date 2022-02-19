@@ -1,7 +1,7 @@
 #include "os.h"
 
 #define STACK_SIZE 1024
-uint8_t task0_stack[STACK_SIZE];
+reg_t task0_stack[STACK_SIZE];
 struct context ctx_os;
 struct context ctx_task;
 
