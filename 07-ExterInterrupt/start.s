@@ -3,24 +3,14 @@
 .global _start
 
 _start:
-    # setup stacks per hart
-    csrr t0, mhartid                # read current hart id
-    slli t0, t0, 10                 # shift left the hart id by 1024
-    la   sp, stacks + STACK_SIZE    # set the initial stack pointer 
-                                    # to the end of the stack space
-    add  sp, sp, t0                 # move the current hart stack pointer
-                                    # to its place in the stack space
-
-    # park harts with id != 0
-    csrr a0, mhartid                # read current hart id
-    bnez a0, park                   # if we're not on the hart 0
-                                    # we park the hart
-
-    j    os_main                    # hart 0 jump to c
+    csrr a0, mhartid                # 讀取核心代號
+    bnez a0, park                   # 若不是 0 號核心，跳到 park 停止
+    la   sp, stacks + STACK_SIZE    # 0 號核心設定堆疊
+    j    os_main                    # 0 號核心跳到主程式 os_main
 
 park:
     wfi
     j park
 
 stacks:
-    .skip STACK_SIZE * 4            # allocate space for the harts stacks
+    .skip STACK_SIZE                # 分配堆疊空間
